@@ -9,7 +9,7 @@
 // I really don't want to type extra 160 loc
 // because of the inheritance requirements
 
-#define CARD_CLASS(name, chr, a, b ,c, d)   class name : public Card {\
+#define CARD_CLASS(name, chr, a, b, c, d)   class name : public Card {\
                                             public:\
                                                 name() {}\
                                                 ~name() override = default;\
@@ -27,13 +27,17 @@
                                             }
 
 #include <ostream>
+#include <map>
 
 class Card {
 public:
     virtual ~Card() = default;;
+
     virtual int getCardsPerCoin(int coins) = 0;
+
     virtual std::string getName() = 0;
-    virtual void print(std::ostream& out) = 0;
+
+    virtual void print(std::ostream &out) = 0;
 };
 
 CARD_CLASS(Blue, 'B', 4, 6, 8, 10);
