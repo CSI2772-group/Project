@@ -2,7 +2,7 @@
 #include "Card.h"
 #include <stdexcept>
 #include <vector>
-#include "IllegapType.h"
+#include "IllegalType.h"
 
 int Chain<Card>::sell()
 {
