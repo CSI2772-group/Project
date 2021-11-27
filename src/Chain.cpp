@@ -18,19 +18,23 @@ int Chain<Card>::sell()
         return 0;
 }
 
-Chain<Card>::Chain()
-{
-    std::vector<Card> chain;
-}
-
 template <class T>
-Chain<T>::Chain(const Chain<T> &)
+Chain<T>::Chain(std::istream &is, const CardFactory *factory)
 {
-}
+    std::vector<char> v = is;
 
-template <class T>
-Chain<T>::Chain(std::istream &, const CardFactory *)
-{
+    char t = v.at(0); //assuming there is at least one character in is
+
+    for (char c : is)
+    {
+        if (c != t)
+        {
+            IllegalType l; //make sure is is of same card type
+            throw(l);
+        }
+        else
+            chain.push_back(factory->makeCard(c));
+    }
 }
 
 template <class T>

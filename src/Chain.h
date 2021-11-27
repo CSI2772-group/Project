@@ -10,7 +10,8 @@
 #include "CardFactory.h"
 
 // Chain abstract interface
-class ChainBase {
+class ChainBase
+{
 public:
     virtual int sell() = 0;
 
@@ -19,27 +20,23 @@ public:
     virtual unsigned long size() = 0;
 };
 
-
-template<class T>
-class Chain : public ChainBase {
+template <class T>
+class Chain : public ChainBase
+{
 public:
-    Chain();
-
-    Chain(const Chain<T> &);
-
     Chain(std::istream &, const CardFactory *);
 
     Chain<T> &operator+=(Card *);
 
     int sell();
 
-    unsigned long size() override {
+    unsigned long size() override
+    {
         return chain.size();
     }
 
 private:
     std::vector<T *> chain;
 };
-
 
 #endif //BEANS_CHAIN_H
