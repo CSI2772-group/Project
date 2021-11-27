@@ -9,29 +9,41 @@
 // I really don't want to type extra 160 loc
 // because of the inheritance requirements
 
-#define CARD_CLASS(name, chr, a, b, c, d)   class name : public Card {\
-                                            public:\
-                                                name() {}\
-                                                ~name() override = default;\
-                                                void print(std::ostream& out) override{ out << chr;}\
-                                                std::string getName() override{ return #name;}\
-                                                int getCardsPerCoin(int coins) override{\
-                                                    switch (coins) {\
-                                                    case 1: return a;\
-                                                    case 2: return b;\
-                                                    case 3: return c;\
-                                                    case 4: return d;\
-                                                    default:return 0;\
-                                                    }\
-                                                }\
-                                            }
+#define CARD_CLASS(name, chr, a, b, c, d)                      \
+    class name : public Card                                   \
+    {                                                          \
+    public:                                                    \
+        name() {}                                              \
+        ~name() override = default;                            \
+        void print(std::ostream &out) override { out << chr; } \
+        std::string getName() override { return #name; }       \
+        int getCardsPerCoin(int coins) override                \
+        {                                                      \
+            switch (coins)                                     \
+            {                                                  \
+            case 1:                                            \
+                return a;                                      \
+            case 2:                                            \
+                return b;                                      \
+            case 3:                                            \
+                return c;                                      \
+            case 4:                                            \
+                return d;                                      \
+            default:                                           \
+                return 0;                                      \
+            }                                                  \
+        }                                                      \
+        char cardType = chr;                                   \
+    }
 
 #include <ostream>
 #include <map>
 
-class Card {
+class Card
+{
 public:
-    virtual ~Card() = default;;
+    virtual ~Card() = default;
+    ;
 
     virtual int getCardsPerCoin(int coins) = 0;
 

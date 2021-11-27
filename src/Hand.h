@@ -9,14 +9,10 @@
 #include "Card.h"
 #include "CardFactory.h"
 
-
-class Hand {
+class Hand
+{
 public:
-    Hand();
-
-    Hand(const Hand &);
-
-    Hand &operator+=(Card *);
+    friend Hand &operator+=(Hand h, Card *);
 
     Card *play();
 
@@ -29,8 +25,7 @@ public:
     Hand(std::istream &, const CardFactory *);
 
 private:
-    std::queue<Card *> cards;
+    std::deque<Card *> cards;
 };
-
 
 #endif //BEANS_HAND_H

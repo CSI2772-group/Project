@@ -1,30 +1,30 @@
 #include "Hand.h"
-
-Hand::Hand() {}
-
-Hand::Hand(const Hand &) {}
+#include <list>
 
 Hand::Hand &operator+=(Hand h, Card *c)
 {
-    h.cards.push(c);
+    h.cards.push_back(c);
 }
 
-Card *Hand::play() {}
+Card *Hand::play()
+{
+    Card *c = cards.front();
+    cards.pop_front();
 
-Card *Hand::top() {}
+    return c;
+}
+
+Card *Hand::top()
+{
+    return cards.front();
+}
 
 Card *Hand::operator[](int i)
 {
-    std::queue<Card *> q;
+    Card *c = cards.at(i);
+    cards.erase(cards.begin() + i);
 
-    for (int j = 0; j < i; j++)
-    {
-        q.push(cards.pop());
-    }
-
-    Card *c;
-
-    c = cards.
+    return c;
 }
 
 std::ostream &operator<<(std::ostream &os, const Hand &h)
@@ -32,4 +32,6 @@ std::ostream &operator<<(std::ostream &os, const Hand &h)
     os << h;
 }
 
-Hand::Hand(std::istream &, const CardFactory *) {}
+Hand::Hand(std::istream &, const CardFactory *)
+{
+}
