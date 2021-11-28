@@ -6,8 +6,6 @@
 #define BEANS_PLAYER_H
 
 #include <string>
-#include "Chain.h"
-#include "CardFactory.h"
 
 class Player {
 public:
@@ -46,17 +44,30 @@ public:
 
     ChainBase *&operator[](int);
 
-    void buyThirdChain();
+    bool buyThirdChain();
 
     void printHand(std::ostream &, bool);
 
     friend std::ostream &operator<<(std::ostream &, const Player &);
 
+    Hand hand;
 private:
     std::string name;
     int numCoins = 0;
     int maxNumChains = 2;
     ChainBase *chains[3]; // HACK:FIXME solve this template problem
 };
+
+void Player::printHand(std::ostream & out, bool all) {
+    if (all) {
+        for (int i = 0; i < maxNumChains; i++) {
+            if (chains[i]->size() > 0) {
+                out << chains[i] << std::endl;
+            }
+        }
+    } else {
+        out << chains[0] << std::endl;
+    }
+}
 
 #endif //BEANS_PLAYER_H
