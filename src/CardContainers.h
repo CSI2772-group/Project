@@ -2,169 +2,219 @@
 #define BEANS_CARDCONTAINERS_H
 
 #include "Card.h"
+#include <list>
 
 // region Deck
-class Deck : public std::vector<Card*>
-{
-    friend class CardFactory;
+class Deck : public std::vector<Card *> {
+  friend class CardFactory;
+
 public:
-    Deck();
-    Card *draw() {
-        Card *card = back();
-        pop_back();
-        return card;
-    }
+  Deck() = default;
 
-    Deck(std::istream &, const CardFactory *);
+  Card *draw() {
+    Card *card = back();
+    pop_back();
+    return card;
+  }
 
-    void shuffle() {
-        std::random_device rd;
-        std::mt19937 g(rd());
-        std::shuffle(begin(), end(), g);
-    }
+  Deck(std::istream &, const CardFactory *);
+
+  void shuffle() {
+    std::random_device rd;
+    std::mt19937 rng(rd());
+    std::shuffle(begin(), end(), rng);
+  }
+
+  void shuffle(int seed) {
+    std::mt19937 rng(seed);
+    std::shuffle(begin(), end(), rng);
+  }
 };
 // endregion
 
 // region Hand
 
-class Hand : public std::vector<Card*>
-{
-    friend class Player;
+class Hand : public std::list<Card *> {
+  friend class Player;
+
 public:
-    Hand() = default;
-    Hand &operator+=(Card * card) {
-        push_back(card);
-        return *this;
-    }
+  Hand() = default;
 
-    Card *play() {
-        Card *c = back();
-        pop_back();
-        return c;
-    }
+  Hand &operator+=(Card *card) {
+    push_back(card);
+    return *this;
+  }
 
-    Card *top() {
-        return back();
-    }
+  Card *play() {
+    Card *c = front();
+    pop_front();
+    return c;
+  }
 
-    Card *operator[](int i) {
-        Card *c = this->at(i);
-        erase(begin() + i);
-        return c;
-    }
+  Card *top() { return front(); }
 
-    // TODO: Implement serilizing and deserializing
-    friend std::ostream &operator<<(std::ostream &, const Hand &);
-    Hand(std::istream &, const CardFactory *);
+  Card *operator[](int i) {
+    // Return i-th card from the hand and remove it from the hand
+    auto it = begin();
+    std::advance(it, i);
+    Card *c = *it;
+    erase(it);
+    return c;
+  }
+
+  // TODO: Implement serializing and deserializing
+  friend std::ostream &operator<<(std::ostream &, const Hand &);
+
+  Hand(std::istream &, const CardFactory *);
 };
 
 // endregion
 
 // region Chain
-class ChainBase
-{
+class ChainBase {
 public:
-    virtual int sell() = 0;
+  virtual int sell() = 0;
 
-    virtual ChainBase &operator+=(Card *) = 0;
+  virtual ChainBase &operator+=(Card *) = 0;
 
-    virtual unsigned long size() = 0;
+  virtual char chainType() = 0;
+
+  int chainSize = 0;
+
+  ChainBase();
 };
 
-template <class T>
-class Chain : public ChainBase
-{
+// template class that extends "Card"
+template <class T> class Chain : public ChainBase {
+  static_assert(std::is_base_of<Card, T>::value, "T must derive from Card");
+
 public:
-    Chain() = default;
-    // TODO: Implement chain deserialization (might need to refactor a bit)
-    Chain(std::istream & is, CardFactory * factory) {
-        std::vector<char> v = reinterpret_cast<const std::vector<char> &>(is);
+  Chain() = default;
 
-        char t = v.at(0); //assuming there is at least one character in is
+  // TODO: Implement chain deserialization (it takes a char and a byte from
+  // istream)
+  Chain(std::istream &is, CardFactory *factory) {}
 
-        for (char c : v)
-        {
-            if (c != t)
-            {
-                IllegalType l; //make sure it is of same card type
-                throw(l);
-            }
-            else
-                chain.push_back(factory->makeCard(c));
-        }
+  Chain<T> &operator+=(Card *card) {
+    // try to cast to card to T
+    T *t = dynamic_cast<T *>(card);
+    if (t != nullptr) {
+      // cast successful
+      chainSize++;
+    } else {
+      // cast failed
+      throw IllegalType();
     }
+  }
 
-    Chain<T> &operator+=(Card * card) {
-        if (chain.empty() || card->getName() == chain[0]->getName())
-            chain.push_back(card);
-        else
-            throw IllegalType();
-    }
+  int sell() override {
 
-    int sell() override {
-        if (chain.size() > chain[0]->getCardsPerCoin(4))
-            return 4;
-        else if (chain.size() > chain[0]->getCardsPerCoin(3))
-            return 3;
-        else if (chain.size() > chain[0]->getCardsPerCoin(2))
-            return 2;
-        else if (chain.size() > chain[0]->getCardsPerCoin(1))
-            return 1;
-        else
-            return 0;
-    }
+    if (chainSize >= T::getCardsPerCoin(4))
+      return 4;
+    else if (chainSize >= T::getCardsPerCoin(3))
+      return 3;
+    else if (chainSize >= T::getCardsPerCoin(2))
+      return 2;
+    else if (chainSize >= T::getCardsPerCoin(1))
+      return 1;
+    else
+      return 0;
+  }
 
-    unsigned long size() override
-    {
-        return chain.size();
+  char chainType() override { return T::getShortName(); }
+};
+
+// Chain Factory
+
+class ChainFactory {
+public:
+  void operator=(ChainFactory const &) = delete;
+
+  ChainFactory(ChainFactory const &) = delete;
+
+  static ChainFactory *getFactory() {
+    static ChainFactory factory; // singleton
+    return &factory;
+  }
+
+  ChainBase *createChain(char chainType) {
+    ChainBase *chain = nullptr;
+    switch (chainType) {
+    case 'B':
+      chain = new Chain<Blue>();
+      break;
+    case 'C':
+      chain = new Chain<Chili>();
+      break;
+    case 'S':
+      chain = new Chain<Stink>();
+      break;
+    case 'G':
+      chain = new Chain<Green>();
+      break;
+    case 's':
+      chain = new Chain<Soy>();
+      break;
+    case 'b':
+      chain = new Chain<Black>();
+      break;
+    case 'R':
+      chain = new Chain<Red>();
+      break;
+    case 'g':
+      chain = new Chain<Garden>();
+      break;
+    default:
+      throw IllegalType();
     }
+    return chain;
+  }
 
 private:
-    std::vector<T *> chain;
+  ChainFactory() = default;
+
+  std::vector<Card *> cards;
 };
+
+// endregion
+
 // endregion
 
 // region Discard Pile
 
 class DiscardPile : public std::vector<Card *> {
 public:
-    DiscardPile() = default;
+  DiscardPile() = default;
 
-    DiscardPile(const DiscardPile & dp) {
-        for (int i = 0; i < size(); i++)
-        {
-            push_back(dp.at(i)); //unclear if this is supposed to be a clone or a copy
-        }
+  DiscardPile(const DiscardPile &dp) {
+    for (int i = 0; i < size(); i++) {
+      push_back(dp.at(i)); // unclear if this is supposed to be a clone or copy
     }
+  }
 
-    DiscardPile &operator+=(Card * card) {
-        push_back(card);
-        return *this;
+  DiscardPile &operator+=(Card *card) {
+    push_back(card);
+    return *this;
+  }
+
+  Card *pickUp() {
+    Card *card = this->back();
+    this->pop_back();
+    return card;
+  }
+
+  Card *top() { return this->back(); }
+
+  void print(std::ostream &) const {
+    for (auto card : *this) {
+      card->print(std::cout);
     }
+  }
 
-    Card *pickUp() {
-        Card *card = this->back();
-        this->pop_back();
-        return card;
-    }
+  // TODO: Implement serialization and deserialization of discard pile
+  friend std::ostream &operator<<(std::ostream &, const DiscardPile &);
 
-    Card *top() {
-        return this->back();
-    }
-
-    void print(std::ostream &) const {
-        for (auto card: *this) {
-            card->print(std::cout);
-        }
-    }
-
-    //TODO: Implement serialization and deserialization of discard pile
-    friend std::ostream &operator<<(std::ostream &, const DiscardPile &);
-
-    DiscardPile(std::istream &, const CardFactory *) {
-
-    }
-
+  DiscardPile(std::istream &, const CardFactory *) {}
 };
 
 // endregion
@@ -173,50 +223,48 @@ public:
 
 class TradeArea {
 public:
-    TradeArea();
+  TradeArea() = default;
 
-    // Just adds a card to the trade area
-    TradeArea &operator+=(Card * card){
-        cards.push_back(card);
-        return *this;
+  // Just adds a card to the trade area
+  TradeArea &operator+=(Card *card) {
+    cards.push_back(card);
+    return *this;
+  }
+
+  // Returns true if the card is legal to add to the trade area
+  bool legal(Card *card) const {
+    // TODO: Check if this is the right way to do this
+    for (auto &c : cards) {
+      if (c->getName() == card->getName()) {
+        return false;
+      }
     }
+    return true;
+  }
 
-    // Returns true if the card is legal to add to the trade area
-    bool legal(Card * card) const{
-        // TODO: Check if this is the right way to do this
-        for (auto &c : cards) {
-            if (c->getName() == card->getName()) {
-                return false;
-            }
-        }
-        return true;
+  // Removes a card of the corresponding bean name from the trade area
+  Card *trade(std::string name) {
+    for (auto it = cards.begin(); it != cards.end(); ++it) {
+      if ((*it)->getName() == name) {
+        Card *card = *it;
+        cards.erase(it);
+        return card;
+      }
     }
+    return nullptr;
+  }
 
-    // Removes a card of the corresponding bean name from the trade area
-    Card *trade(std::string name){
-        for (auto it = cards.begin(); it != cards.end(); ++it) {
-            if ((*it)->getName() == name) {
-                Card *card = *it;
-                cards.erase(it);
-                return card;
-            }
-        }
-        return nullptr;
-    }
+  int numCards() const { return cards.size(); }
 
-    int numCards() const{
-        return cards.size();
-    }
+  // TODO: Implement deserialization and serialization of trade area
+  friend std::ostream &operator<<(std::ostream &, const TradeArea &);
 
-    // TODO: Implement deserialization and serialization of trade area
-    friend std::ostream &operator<<(std::ostream &, const TradeArea &);
-
-    TradeArea(std::istream &, const CardFactory *);
+  TradeArea(std::istream &, const CardFactory *);
 
 private:
-    std::vector<Card *> cards;
+  std::vector<Card *> cards;
 };
 
 // endregion
 
-#endif //BEANS_CARDCONTAINERS_H
+#endif // BEANS_CARDCONTAINERS_H
