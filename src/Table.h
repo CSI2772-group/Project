@@ -15,19 +15,21 @@
         deck.push_back(factory->makeCard(cardType));\
 
 class Table {
+    friend class BeanFSM;
 public:
     // Initialize the table from zero
-    Table(std::string p1, std::string p2): player1(p1), player2(p2), deck(){
-        CardFactory* factory = CardFactory::getFactory();
-        MAKE_CARDS(deck, factory, 'B', 20);
-        MAKE_CARDS(deck, factory, 'C', 18);
-        MAKE_CARDS(deck, factory, 'S', 16);
-        MAKE_CARDS(deck, factory, 'G', 14);
-        MAKE_CARDS(deck, factory, 's', 12);
-        MAKE_CARDS(deck, factory, 'b', 10);
-        MAKE_CARDS(deck, factory, 'R', 8);
-        MAKE_CARDS(deck, factory, 'g', 6);
+    Table(std::string p1, std::string p2):
+            player1(p1),
+            player2(p2),
+            deck(),
+            discardPile() {
+        InitializeCards();
         deck.shuffle();
+        // Give 5 cards to each player
+        for (int i = 0; i < 5; i++) {
+            player1.hand.push_back(deck.draw());
+            player2.hand.push_back(deck.draw());
+        }
     }
 
     // Todo : Add a constructor that takes a file name and loads the table from it
@@ -37,14 +39,19 @@ public:
 
     bool win(std::string & winner) const{
         bool won = false;
-        if (player1.hand.size() == 0) {
-            won = true;
-            winner = player1.getName();
+        if (deck.empty()){
+            if(player1.getNumCoins() > player2.getNumCoins()){
+                winner = player1.getName();
+                won = true;
+            } else if(player1.getNumCoins() < player2.getNumCoins()){
+                winner = player2.getName();
+                won = true;
+            } else{
+                winner = "It's a tie! Everyone wins! (or loses if you think about it)";
+                won = true;
+            }
         }
-        if (player2.hand.size() == 0) {
-            won = true;
-            winner = player2.getName();
-        }
+
         return won;
     }
 
@@ -53,6 +60,19 @@ public:
     friend std::ostream &operator<<(std::ostream &, const Table &);
 
 private:
+    void InitializeCards(){
+        CardFactory* factory = CardFactory::getFactory();
+        MAKE_CARDS(deck, factory, 'B', 20);
+        MAKE_CARDS(deck, factory, 'C', 18);
+        MAKE_CARDS(deck, factory, 'S', 16);
+        MAKE_CARDS(deck, factory, 'G', 14);
+        MAKE_CARDS(deck, factory, 's', 12);
+        MAKE_CARDS(deck, factory, 'b', 10);
+        MAKE_CARDS(deck, factory, 'R', 8);
+        MAKE_CARDS(deck, factory, 'g', 6);
+    }
+
+    bool p1Turn = true;
     Player player1;
     Player player2;
     Deck deck;
