@@ -1,7 +1,6 @@
 
 #include <iostream>
-#include "Card.h"
-#include "Table.h"
+#include "BeanFSM.h"
 
 const std::string beanAsciiArt =
         "      ████████\n"
@@ -22,7 +21,8 @@ int main() {
     // Print ascii art
     std::cout << beanAsciiArt;
     std::cout << "Welcome to the Bean Game!\nLiterally Fall Guys™ except its like an obscure card game :/\n";
-
+    BeanFSM bean;
+    bean.start();
     // Ask if new game or load game
     // if(new game)
     // {
