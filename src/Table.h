@@ -72,7 +72,7 @@ private:
         MAKE_CARDS(deck, factory, 'g', 6);
     }
 
-    bool p1Turn = true;
+    bool p1Turn = false;
     Player player1;
     Player player2;
     Deck deck;
