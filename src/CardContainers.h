@@ -75,7 +75,7 @@ class ChainBase {
 public:
   virtual int sell() = 0;
 
-  virtual ChainBase &operator+=(Card *) = 0;
+  virtual ChainBase &operator+=(Card * c) = 0;
 
   virtual char chainType() = 0;
 
@@ -95,7 +95,7 @@ public:
   // istream)
   Chain(std::istream &is, CardFactory *factory) {}
 
-  Chain<T> &operator+=(Card *card) {
+  Chain<T> &operator+=(Card *card) override{
     // try to cast to card to T
     T *t = dynamic_cast<T *>(card);
     if (t != nullptr) {
@@ -206,9 +206,12 @@ public:
   Card *top() { return this->back(); }
 
   void print(std::ostream &) const {
-    for (auto card : *this) {
-      card->print(std::cout);
+    auto it = begin();
+    while (it != end()) {
+      std::cout << *it << " ";
+      it++;
     }
+
   }
 
   // TODO: Implement serialization and deserialization of discard pile
@@ -234,6 +237,7 @@ public:
   // Returns true if the card is legal to add to the trade area
   bool legal(Card *card) const {
     // TODO: Check if this is the right way to do this
+
     for (auto &c : cards) {
       if (c->getName() == card->getName()) {
         return false;
@@ -254,6 +258,7 @@ public:
     return nullptr;
   }
 
+  // Returns the number of cards in the trade area
   int numCards() const { return cards.size(); }
 
   // TODO: Implement deserialization and serialization of trade area
@@ -261,7 +266,14 @@ public:
 
   TradeArea(std::istream &, const CardFactory *);
 
-private:
+  // Print s the trade area
+  void pprint(std::ostream & os) const {
+    os << "Trade Area: " << std::endl;
+    for (auto card : cards) {
+      card->pprint(std::cout);
+    }
+  }
+
   std::vector<Card *> cards;
 };
 
