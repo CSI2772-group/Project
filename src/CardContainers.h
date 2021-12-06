@@ -70,10 +70,22 @@ public:
         return c;
     }
 
-    // TODO: Implement serializing and deserializing
-    friend std::ostream &operator<<(std::ostream &, const Hand &);
+    // TODO: make sure this works
+    friend std::ostream &operator<<(std::ostream &os, const Hand &h)
+    {
+        for (auto card : h)
+        {
+            os.put(card->getShortName());
+        }
+    };
 
-    Hand(std::istream &, const CardFactory *);
+    Hand(std::istream &is, const CardFactory *cf)
+    {
+        while (is)
+        {
+            push_back(cf->getFactory()->makeCard(is.get()));
+        }
+    };
 };
 
 // endregion
@@ -104,7 +116,14 @@ public:
 
     // TODO: Implement chain deserialization (it takes a char and a byte from
     // istream)
-    Chain(std::istream &is, CardFactory *factory) {}
+    // not sure what to do with the byte
+    Chain(std::istream &is, CardFactory *cf)
+    {
+        while (is)
+        {
+            cards.push_back(cf->getFactory()->makeCard(is.get()));
+        }
+    }
 
     Chain<T> &operator+=(Card *card) override
     {
@@ -241,9 +260,21 @@ public:
     }
 
     // TODO: Implement serialization and deserialization of discard pile
-    friend std::ostream &operator<<(std::ostream &, const DiscardPile &);
+    friend std::ostream &operator<<(std::ostream &os, const DiscardPile &dp)
+    {
+        for (auto card : dp)
+        {
+            os.put(card->getShortName());
+        }
+    };
 
-    DiscardPile(std::istream &, const CardFactory *) {}
+    DiscardPile(std::istream &is, const CardFactory *cf)
+    {
+        while (is)
+        {
+            push_back(cf->getFactory()->makeCard(is.get()));
+        }
+    }
 };
 
 // endregion
