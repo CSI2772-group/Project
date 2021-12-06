@@ -85,7 +85,7 @@ public:
 
     ChainBase *&operator[](int);
 
-    // What's the chain price again?
+    // pays 3 coins to buy third chain
     bool buyThirdChain();
 
 
