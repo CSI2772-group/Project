@@ -41,6 +41,19 @@
                 return 0;                                               \
             }                                                           \
         }                                                               \
+        static int const getCoinsPerCard(int cards)                     \
+        {                                                               \
+            if(cards >= d)                                              \
+                return 4 ;                                              \
+            else if (cards >= c)                                        \
+                return 3;                                               \
+            else if (cards >= b)                                        \
+                return 2;                                               \
+            else if (cards >= a)                                        \
+                return 1;                                               \
+            else                                                        \
+                return 0;                                               \
+        }                                                               \
         char cardType = chr;                                            \
     }
 
@@ -53,12 +66,14 @@ public:
     virtual ~Card() = default;
 
     static const int getCardsPerCoin(int coins) { return 0; }
+    static const int getCoinsPerCard(int cards) { return 0; }
 
     static const char getShortName() { return '\0'; }
 
     static const std::string getName() { return ""; }
 
     static const void pprint(std::ostream &out) {};
+
     static const void print(std::ostream &out) {};
 };
 
