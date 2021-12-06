@@ -37,9 +37,9 @@ Table *loadFromFile()
         std::cin >> answer;
         if (answer == 'y')
             return Utils::loadGame(save);
-        else
-            return nullptr;
     }
+
+    return nullptr;
 }
 
 Table *makeTable()
@@ -216,6 +216,11 @@ bool playerChainCard(Player *player, Card *card)
         }
     }
 
+    if (player->chains.size() < player->getMaxNumChains())
+    {
+        player->addChain(topCard);
+    }
+
     return false;
 }
 
@@ -269,6 +274,9 @@ void playTopCardLoop(Player *player)
 void tradeCards(Table *table, bool discard)
 {
     Player *player = table->getCurrentPlayer();
+
+    if (table->tradeArea.cards.empty())
+        return;
 
     if (discard)
         std::cout << "You have the option to chain or discard cards from the trading area.\n";
@@ -354,6 +362,7 @@ int main()
         // Display Table
         Utils::clearScreen();
         Utils::printTable(table);
+        std::cout << std::endl;
 
         runPlayerTurn(table);
 

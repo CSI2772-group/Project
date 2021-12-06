@@ -10,9 +10,11 @@
 #include "CardContainers.h"
 #include "Player.h"
 
-#define MAKE_CARDS(deck, factory, cardType, amount) \
-    for (int i = 0; i < amount; i++)                \
-        deck.push_back(factory->makeCard(cardType));
+void makeCards(Deck *deck, CardFactory *cf, char cardType, int amount)
+{
+    for (int i = 0; i < amount; i++)
+        deck->push_back(cf->makeCard(cardType));
+}
 
 class Table
 {
@@ -91,14 +93,14 @@ private:
     void InitializeCards()
     {
         CardFactory *factory = CardFactory::getFactory();
-        MAKE_CARDS(deck, factory, 'B', 20);
-        MAKE_CARDS(deck, factory, 'C', 18);
-        MAKE_CARDS(deck, factory, 'S', 16);
-        MAKE_CARDS(deck, factory, 'G', 14);
-        MAKE_CARDS(deck, factory, 's', 12);
-        MAKE_CARDS(deck, factory, 'b', 10);
-        MAKE_CARDS(deck, factory, 'R', 8);
-        MAKE_CARDS(deck, factory, 'g', 6);
+        makeCards(&deck, factory, 'B', 20);
+        makeCards(&deck, factory, 'C', 18);
+        makeCards(&deck, factory, 'S', 16);
+        makeCards(&deck, factory, 'G', 14);
+        makeCards(&deck, factory, 's', 12);
+        makeCards(&deck, factory, 'b', 10);
+        makeCards(&deck, factory, 'R', 8);
+        makeCards(&deck, factory, 'g', 6);
     }
 };
 

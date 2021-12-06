@@ -126,8 +126,6 @@ public:
     virtual char chainTypeShort() = 0;
 
     int chainSize = 0;
-
-    ChainBase();
 };
 
 // template class that extends "Card"

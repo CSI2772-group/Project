@@ -77,7 +77,9 @@ public:
         return maxNumChains;
     }
 
-    //  returns the number of non-zero chains
+    // returns the number of non-zero chains
+    // this makes no sense, either they have chains or they dont
+    // chains dont change type, so making new chains is the only thing that makes sense.
     int getNumChains() const
     {
         int num = 0;
@@ -89,6 +91,13 @@ public:
             }
         }
         return num;
+    }
+
+    void addChain(Card *card)
+    {
+        ChainBase *chain = ChainFactory::getFactory()->createChain(card->getShortName());
+        chain->chainSize = card->getShortName();
+        chains.push_back(chain);
     }
 
     bool hasChainMatching(Card *c)
