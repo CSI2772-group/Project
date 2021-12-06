@@ -63,6 +63,10 @@ public:
 
         return won;
     }
+    void nextTurn()
+    {
+        p1Turn = !p1Turn;
+    }
 
     void printHand(bool) const;
 
@@ -71,13 +75,9 @@ public:
     Player *getCurrentPlayer()
     {
         if (p1Turn)
-        {
             return &player1;
-        }
         else
-        {
             return &player2;
-        }
     }
 
     bool p1Turn = false;

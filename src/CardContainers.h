@@ -88,6 +88,27 @@ public:
             push_back(cf->getFactory()->makeCard(is.get()));
         }
     };
+
+    std::vector<Card *> getUniqueCards()
+    {
+        std::vector<Card *> unique;
+
+        for (auto *c : *this)
+        {
+            //for each card in hand
+
+            //check to see if its already in unique
+            bool anyEqual = false;
+            for (auto *u : unique)
+                anyEqual = anyEqual || c->getName() == u->getName();
+
+            //if it's not, add it to unique
+            if (!anyEqual)
+                unique.push_back(c);
+        }
+
+        return unique;
+    }
 };
 
 // endregion
@@ -160,7 +181,7 @@ public:
             return 0;
     }
 
-    std::string chainType() override { return T::name; }
+    std::string chainType() override { return T::getName(); }
 
     char chainTypeShort() override { return T::getShortName(); }
 
@@ -371,6 +392,11 @@ public:
         {
             card->pprint(std::cout);
         }
+    }
+
+    void removeCard(Card *c)
+    {
+        cards.erase(std::remove(cards.begin(), cards.end(), c), cards.end());
     }
 
     std::vector<Card *> cards;
