@@ -304,11 +304,6 @@ class TradeArea
 public:
     TradeArea() = default;
 
-    bool isEmpty()
-    {
-        return cards.size() == 0;
-    };
-
     // Just adds a card to the trade area
     TradeArea &operator+=(Card *card)
     {
