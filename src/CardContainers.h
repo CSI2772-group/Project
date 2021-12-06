@@ -100,7 +100,9 @@ public:
 
     virtual ChainBase &operator+=(Card *c) = 0;
 
-    virtual char chainType() = 0;
+    virtual std::string chainType() = 0;
+
+    virtual char chainTypeShort() = 0;
 
     int chainSize = 0;
 
@@ -123,7 +125,7 @@ public:
     {
         while (is)
         {
-            push_back(cf->getFactory()->makeCard(is.get()));
+            cards.push_back(cf->getFactory()->makeCard(is.get()));
         }
     }
 
@@ -134,7 +136,7 @@ public:
         if (t != nullptr)
         {
             // cast successful
-            cards.push_back(card);
+            cards.push_back(t);
         }
         else
         {
@@ -158,10 +160,12 @@ public:
             return 0;
     }
 
-    char chainType() override { return T::getShortName(); }
+    std::string chainType() override { return T::name; }
+
+    char chainTypeShort() override { return T::getShortName(); }
 
 private:
-    std::vector<T> cards;
+    std::vector<T *> cards;
 };
 
 // Chain Factory
@@ -229,7 +233,7 @@ private:
 class DiscardPile : public std::vector<Card *>
 {
 public:
-    DiscardPile() = default;
+    using std::vector<Card *>::vector; //inherit vector constructors
 
     DiscardPile(const DiscardPile &dp)
     {
@@ -247,13 +251,20 @@ public:
 
     Card *pickUp()
     {
-        Card *card = this->back();
-        this->pop_back();
+        Card *card = back();
+        pop_back();
         return card;
     }
 
-    Card *top() { return this->back(); }
+    Card *top() const
+    {
+        if (size() == 0)
+            return nullptr;
+        else
+            return back();
+    }
 
+    // I think this is serialization
     void print(std::ostream &) const
     {
         auto it = begin();
@@ -264,17 +275,17 @@ public:
         }
     }
 
-    // TODO: Implement serialization and deserialization of discard pile
     friend std::ostream &operator<<(std::ostream &os, const DiscardPile &dp)
     {
-        for (auto card : dp)
-        {
-            os.put(card->getShortName());
-        }
+        if (dp.size() == 0)
+            os << "Discard pile is empty";
+        else
+            os << dp.top();
 
         return os;
     };
 
+    // TODO: Implement serialization and deserialization of discard pile
     DiscardPile(std::istream &is, const CardFactory *cf)
     {
         while (is)
@@ -292,6 +303,11 @@ class TradeArea
 {
 public:
     TradeArea() = default;
+
+    bool isEmpty()
+    {
+        return cards.size() == 0;
+    };
 
     // Just adds a card to the trade area
     TradeArea &operator+=(Card *card)
