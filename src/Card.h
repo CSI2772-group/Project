@@ -33,7 +33,7 @@
             out << getName() << ": " << getCardsPerCoin(1) << " | " << getCardsPerCoin(2) << " | "                     \
                 << getCardsPerCoin(3) << " | " << getCardsPerCoin(4) << " | ";                                         \
         }                                                                                                              \
-        char getShortName () override                                                                    \
+        char getShortName() override                                                                                   \
         {                                                                                                              \
             return chr;                                                                                                \
         }                                                                                                              \
@@ -66,7 +66,7 @@
             else                                                                                                       \
                 return 0;                                                                                              \
         }                                                                                                              \
-        static const char cardType = chr;                                                                                           \
+        static const char cardType = chr;                                                                              \
     }
 
 // endregion
