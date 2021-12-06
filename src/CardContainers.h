@@ -77,6 +77,8 @@ public:
         {
             os.put(card->getShortName());
         }
+
+        return os;
     };
 
     Hand(std::istream &is, const CardFactory *cf)
@@ -121,7 +123,7 @@ public:
     {
         while (is)
         {
-            cards.push_back(cf->getFactory()->makeCard(is.get()));
+            push_back(cf->getFactory()->makeCard(is.get()));
         }
     }
 
@@ -132,7 +134,7 @@ public:
         if (t != nullptr)
         {
             // cast successful
-            chainSize++;
+            cards.push_back(card);
         }
         else
         {
@@ -144,19 +146,22 @@ public:
     int sell() override
     {
 
-        if (chainSize >= T::getCardsPerCoin(4))
+        if (cards.size() >= T::getCardsPerCoin(4))
             return 4;
-        else if (chainSize >= T::getCardsPerCoin(3))
+        else if (cards.size() >= T::getCardsPerCoin(3))
             return 3;
-        else if (chainSize >= T::getCardsPerCoin(2))
+        else if (cards.size() >= T::getCardsPerCoin(2))
             return 2;
-        else if (chainSize >= T::getCardsPerCoin(1))
+        else if (cards.size() >= T::getCardsPerCoin(1))
             return 1;
         else
             return 0;
     }
 
     char chainType() override { return T::getShortName(); }
+
+private:
+    std::vector<T> cards;
 };
 
 // Chain Factory
@@ -266,6 +271,8 @@ public:
         {
             os.put(card->getShortName());
         }
+
+        return os;
     };
 
     DiscardPile(std::istream &is, const CardFactory *cf)
@@ -333,6 +340,8 @@ public:
         {
             os.put(card->getShortName());
         }
+
+        return os;
     };
 
     TradeArea(std::istream &is, const CardFactory *cf)
