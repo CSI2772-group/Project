@@ -34,3 +34,5 @@
 # IDE specific folders (e.g. Visual Studio Code User settings)
 .vscode
 cmake-*
+
+build
