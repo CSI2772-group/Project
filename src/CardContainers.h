@@ -9,7 +9,7 @@ class Deck : public std::vector<Card *>
 {
     friend class CardFactory;
 
-public:
+  public:
     Deck() = default;
 
     Card *draw()
@@ -42,7 +42,7 @@ class Hand : public std::list<Card *>
 {
     friend class Player;
 
-public:
+  public:
     Hand() = default;
 
     Hand &operator+=(Card *card)
@@ -58,7 +58,10 @@ public:
         return c;
     }
 
-    Card *top() { return front(); }
+    Card *top()
+    {
+        return front();
+    }
 
     Card *operator[](int i)
     {
@@ -81,12 +84,18 @@ public:
 // region Chain
 class ChainBase
 {
-public:
+  public:
     virtual int sell() = 0;
 
-    virtual ChainBase &operator+=(Card *c) { return *this; }
+    virtual ChainBase &operator+=(Card *c)
+    {
+        return *this;
+    }
 
-    virtual char chainType() { return '*'; }
+    virtual char chainType()
+    {
+        return '*';
+    }
 
     int chainSize = 0;
 
@@ -94,17 +103,17 @@ public:
 };
 
 // template class that extends "Card"
-template <class T>
-class Chain : public ChainBase
+template <class T> class Chain : public ChainBase
 {
     static_assert(std::is_base_of<Card, T>::value, "T must derive from Card");
 
-public:
-    Chain()  = default;
+  public:
+    Chain() = default;
 
     // TODO: Implement chain deserialization (it takes a char and a byte from
     // istream)
-    Chain(std::istream &is, CardFactory *factory) {
+    Chain(std::istream &is, CardFactory *factory)
+    {
     }
 
     Chain<T> &operator+=(Card *card) override
@@ -126,11 +135,12 @@ public:
 
     int sell() override
     {
-        Card* c = dynamic_cast<Card*>(CardFactory::getFactory()->makeCard(chainType()));
+        Card *c = dynamic_cast<Card *>(CardFactory::getFactory()->makeCard(chainType()));
         return c->getCoinsPerCard(chainSize);
     }
 
-    char chainType() override {
+    char chainType() override
+    {
         return T::cardType;
     }
 };
@@ -139,7 +149,7 @@ public:
 
 class ChainFactory
 {
-public:
+  public:
     void operator=(ChainFactory const &) = delete;
 
     ChainFactory(ChainFactory const &) = delete;
@@ -185,7 +195,7 @@ public:
         return chain;
     }
 
-private:
+  private:
     ChainFactory() = default;
 
     std::vector<Card *> cards;
@@ -199,7 +209,7 @@ private:
 
 class DiscardPile : public std::vector<Card *>
 {
-public:
+  public:
     DiscardPile() = default;
 
     DiscardPile(const DiscardPile &dp)
@@ -223,7 +233,10 @@ public:
         return card;
     }
 
-    Card *top() { return this->back(); }
+    Card *top()
+    {
+        return this->back();
+    }
 
     void print(std::ostream &) const
     {
@@ -238,7 +251,9 @@ public:
     // TODO: Implement serialization and deserialization of discard pile
     friend std::ostream &operator<<(std::ostream &, const DiscardPile &);
 
-    DiscardPile(std::istream &, const CardFactory *) {}
+    DiscardPile(std::istream &, const CardFactory *)
+    {
+    }
 };
 
 // endregion
@@ -247,7 +262,7 @@ public:
 
 class TradeArea
 {
-public:
+  public:
     TradeArea() = default;
 
     // Just adds a card to the trade area
@@ -288,7 +303,10 @@ public:
     }
 
     // Returns the number of cards in the trade area
-    int numCards() const { return cards.size(); }
+    int numCards() const
+    {
+        return cards.size();
+    }
 
     // TODO: make sure this works
     friend std::ostream &operator<<(std::ostream &os, const TradeArea &tradeArea)

@@ -91,7 +91,8 @@ int main()
         while (inTradeArea)
         {
             inTradeArea = false;
-            if (!table->discardPile.empty()){
+            if (!table->discardPile.empty())
+            {
                 Card *topDiscard = table->discardPile.top();
                 for (Card *card : table->tradeArea.cards)
                 {
