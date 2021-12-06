@@ -60,6 +60,26 @@ void clearScreen()
     std::cout << std::endl;
 }
 
+void printTable(Table* table){
+    Player* currentPlayer;
+    if (table->p1Turn){
+        currentPlayer = &table->player1;
+    } else {
+        currentPlayer = &table->player2;
+    }
+
+    std::cout << "Current turn: " << currentPlayer->getName() << std::endl;
+    std::cout << "Deck size: " << table->deck.size() << std::endl;
+    std::cout << "Discard pile size: " << table->discardPile.size() << std::endl;
+    std::cout << "Crops: " << std::endl;
+}
+
+Table* loadGame(std::ifstream &save) {
+    // TODO: Load game from file path
+    std::cout << "Loading game..." << std::endl;
+    return nullptr;
+}
+
 }
 
 #endif // BEANS_UTILS_H
