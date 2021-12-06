@@ -85,7 +85,7 @@ public:
 
     ChainBase *&operator[](int);
 
-    // What's the chain price again?
+    // pays 3 coins to buy third chain
     bool buyThirdChain();
 
 
@@ -123,23 +123,33 @@ public:
         return os;
     }
 
+    void printChains(std::ostream &os){
+      for(auto chain : chains){
+        os << chain->chainType() << ": ";
+        for (int i = 0; i < chain->chainSize; ++i) {
+          os << chain->chainType() << " ";
+        }
+        os << std::endl;
+      }
+    }
+
+
     Hand hand;
+    std::vector<ChainBase*> chains;
 private:
     std::string name;
     int numCoins = 0;
     int maxNumChains = 2;
-    ChainBase *chains[3];
 };
+
 
 void Player::printHand(std::ostream &out, bool all) {
     if (all) {
-        for (int i = 0; i < maxNumChains; i++) {
-            if (chains[i]->chainSize > 0) {
-                out << chains[i] << std::endl;
-            }
+        for (int i = 0; i < hand.size(); ++i) {
+            out << hand[i]->getName() << " ";
         }
-    } else {
-        out << chains[0] << std::endl;
+      } else {
+      out << hand.top()->getName();
     }
 }
 

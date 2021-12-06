@@ -12,32 +12,49 @@
 // I really don't want to type extra 160 loc
 // because of the inheritance requirements
 
-#define CARD_CLASS(name, chr, a, b, c, d)                           \
-    class name : public Card                                        \
-    {                                                               \
-    public:                                                         \
-        name() {}                                                   \
-        ~name() override = default;                                 \
-        static void const print(std::ostream &out)  { out << chr; } \
-        static std::string const getName()  { return #name; }       \
-        static char const getShortName()  { return chr; }           \
-        static int const getCardsPerCoin(int coins)                 \
-        {                                                           \
-            switch (coins)                                          \
-            {                                                       \
-            case 1:                                                 \
-                return a;                                           \
-            case 2:                                                 \
-                return b;                                           \
-            case 3:                                                 \
-                return c;                                           \
-            case 4:                                                 \
-                return d;                                           \
-            default:                                                \
-                return 0;                                           \
-            }                                                       \
-        }                                                           \
-        char cardType = chr;                                        \
+#define CARD_CLASS(name, chr, a, b, c, d)                               \
+    class name : public Card                                            \
+    {                                                                   \
+    public:                                                             \
+        name() {}                                                       \
+        ~name() override = default;                                     \
+        static void const print(std::ostream &out)  { out << chr; }     \
+        static std::string const getName()  { return #name; }           \
+        static void const pprint(std::ostream &out)  {                  \
+          out << getName() << ": " << getCardsPerCoin(1) <<  " | "      \
+          << getCardsPerCoin(2) << " | " << getCardsPerCoin(3) << " | " \
+          << getCardsPerCoin(4) << " | "  ; }                           \
+        static char const getShortName()  { return chr; }               \
+        static int const getCardsPerCoin(int coins)                     \
+        {                                                               \
+            switch (coins)                                              \
+            {                                                           \
+            case 1:                                                     \
+                return a;                                               \
+            case 2:                                                     \
+                return b;                                               \
+            case 3:                                                     \
+                return c;                                               \
+            case 4:                                                     \
+                return d;                                               \
+            default:                                                    \
+                return 0;                                               \
+            }                                                           \
+        }                                                               \
+        static int const getCoinsPerCard(int cards)                     \
+        {                                                               \
+            if(cards >= d)                                              \
+                return 4 ;                                              \
+            else if (cards >= c)                                        \
+                return 3;                                               \
+            else if (cards >= b)                                        \
+                return 2;                                               \
+            else if (cards >= a)                                        \
+                return 1;                                               \
+            else                                                        \
+                return 0;                                               \
+        }                                                               \
+        char cardType = chr;                                            \
     }
 
 // endregion
@@ -49,10 +66,13 @@ public:
     virtual ~Card() = default;
 
     static const int getCardsPerCoin(int coins) { return 0; }
+    static const int getCoinsPerCard(int cards) { return 0; }
 
     static const char getShortName() { return '\0'; }
 
     static const std::string getName() { return ""; }
+
+    static const void pprint(std::ostream &out) {};
 
     static const void print(std::ostream &out) {};
 };
