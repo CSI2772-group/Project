@@ -84,13 +84,13 @@ class ChainBase
 public:
     virtual int sell() = 0;
 
-    virtual ChainBase &operator+=(Card *c) = 0;
+    virtual ChainBase &operator+=(Card *c) { return *this; }
 
-    virtual char chainType() = 0;
+    virtual char chainType() { return '*'; }
 
     int chainSize = 0;
 
-    ChainBase();
+    ChainBase() = default;
 };
 
 // template class that extends "Card"
@@ -100,11 +100,12 @@ class Chain : public ChainBase
     static_assert(std::is_base_of<Card, T>::value, "T must derive from Card");
 
 public:
-    Chain() = default;
+    Chain()  = default;
 
     // TODO: Implement chain deserialization (it takes a char and a byte from
     // istream)
-    Chain(std::istream &is, CardFactory *factory) {}
+    Chain(std::istream &is, CardFactory *factory) {
+    }
 
     Chain<T> &operator+=(Card *card) override
     {
@@ -120,24 +121,18 @@ public:
             // cast failed
             throw IllegalType();
         }
+        return *this;
     }
 
     int sell() override
     {
-
-        if (chainSize >= T::getCardsPerCoin(4))
-            return 4;
-        else if (chainSize >= T::getCardsPerCoin(3))
-            return 3;
-        else if (chainSize >= T::getCardsPerCoin(2))
-            return 2;
-        else if (chainSize >= T::getCardsPerCoin(1))
-            return 1;
-        else
-            return 0;
+        Card* c = dynamic_cast<Card*>(CardFactory::getFactory()->makeCard(chainType()));
+        return c->getCoinsPerCard(chainSize);
     }
 
-    char chainType() override { return T::getShortName(); }
+    char chainType() override {
+        return T::cardType;
+    }
 };
 
 // Chain Factory
@@ -302,6 +297,7 @@ public:
         {
             os.put(card->getShortName());
         }
+        return os;
     };
 
     TradeArea(std::istream &is, const CardFactory *cf)
