@@ -15,7 +15,6 @@
         deck.push_back(factory->makeCard(cardType));\
 
 class Table {
-    friend class BeanFSM;
 public:
     // Initialize the table from zero
     Table(std::string p1, std::string p2):
@@ -59,6 +58,20 @@ public:
 
     friend std::ostream &operator<<(std::ostream &, const Table &);
 
+    Player* getCurrentPlayer() {
+        if (p1Turn){
+            return &player1;
+        } else{
+            return &player2;
+        }
+    }
+
+    bool p1Turn = false;
+    Player player2;
+    Player player1;
+    Deck deck;
+    DiscardPile discardPile;
+    TradeArea tradeArea;
 private:
     void InitializeCards(){
         CardFactory* factory = CardFactory::getFactory();
@@ -72,12 +85,6 @@ private:
         MAKE_CARDS(deck, factory, 'g', 6);
     }
 
-    bool p1Turn = false;
-    Player player1;
-    Player player2;
-    Deck deck;
-    DiscardPile discardPile;
-    TradeArea tradeArea;
 };
 
 #endif //BEANS_TABLE_H
