@@ -85,6 +85,15 @@ void printTable(Table *table)
     std::cout << std::endl;
 }
 
+Table *loadGame(std::ifstream &save)
+{
+    Table *table;
+
+    // imlement later
+
+    return table;
+}
+
 } // namespace Utils
 
 #endif // BEANS_UTILS_H

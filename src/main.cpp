@@ -18,58 +18,72 @@ const std::string beanAsciiArt = "      ████████\n"
                                  "          ████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██\n"
                                  "              ████████████████\n";
 
-int main()
+Table *loadFromFile()
 {
-    Table *table;
-
-    // Print corny ascii art  🌽
-    std::cout << beanAsciiArt;
-    std::cout << "Welcome to the Bean Game!\nLiterally Fall Guys™ except its "
-                 "like an obscure card game :/\n";
-
-    // region Save or Load
-
-    // Ask if user wants to load a game or start a new one
     std::ifstream save("save.bean");
-    bool loaded = false;
+
     if (save.is_open())
     {
         std::cout << "Save file found! Do you want to load it? (y/N)" << std::endl;
         char answer;
         std::cin >> answer;
         if (answer == 'y')
-        {
-            table = new Table(save, CardFactory::getFactory());
-            loaded = true;
-        }
+            return Utils::loadGame(save);
     }
-    if (!loaded)
+
+    return nullptr;
+}
+
+Table *makeTable()
+{
+    std::string p2Name;
+    std::cout << "Starting a new game!" << std::endl;
+
+    // Ask p1 and p2 for names
+    std::cout << "Player 1, what is your name?" << std::endl;
+    std::string p1Name = Utils::getLine(3);
+    std::cout << "Player 2, what is your name?" << std::endl;
+    while (true)
     {
-        std::string p2Name;
-        std::cout << "Starting a new game!" << std::endl;
-
-        // Ask p1 and p2 for names
-        std::cout << "Player 1, what is your name?" << std::endl;
-        std::string p1Name = Utils::getLine(3);
-        std::cout << "Player 2, what is your name?" << std::endl;
-        while (true)
+        p2Name = Utils::getLine(3);
+        if (p2Name != p1Name)
         {
-            p2Name = Utils::getLine(3);
-            if (p2Name != p1Name)
-            {
-                break;
-            }
-            else
-            {
-                std::cout << "Player 2, please choose a different name!" << std::endl;
-            }
+            break;
         }
-
-        // Create new game
-        table = new Table(p1Name, p2Name);
+        else
+        {
+            std::cout << "Player 2, please choose a different name!" << std::endl;
+        }
     }
 
-    // endregion
+    // Create new game
+    return new Table(p1Name, p2Name);
+}
+
+Table *loadOrMakeTable()
+{
+    // Print corny ascii art  🌽
+    std::cout << beanAsciiArt;
+    std::cout << "Welcome to the Bean Game!\nLiterally Fall Guys™ except its like an obscure card game :/\n";
+
+    // region Save or Load
+    Table *loadedTable;
+    loadedTable = loadFromFile();
+    if (loadedTable)
+        return loadedTable;
+
+    else
+        return makeTable();
+}
+
+int main()
+{
+    // Print corny ascii art  🌽
+    std::cout << beanAsciiArt;
+    std::cout << "Welcome to the Bean Game!\nLiterally Fall Guys™ except its "
+                 "like an obscure card game :/\n";
+
+    Table *table = loadOrMakeTable();
 
     // region Main Game Loop
     Player *currentPlayer = table->getCurrentPlayer();
