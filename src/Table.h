@@ -25,8 +25,8 @@ class Table
         // Give 5 cards to each player
         for (int i = 0; i < 5; i++)
         {
-            player1.hand.push_back(deck.draw());
-            player2.hand.push_back(deck.draw());
+            player1.hand.cards.push_back(deck.draw());
+            player2.hand.cards.push_back(deck.draw());
         }
     }
 

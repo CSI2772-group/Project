@@ -5,6 +5,7 @@
 #ifndef BEANS_UTILS_H
 #define BEANS_UTILS_H
 
+#include "Table.h"
 #include <cstdlib>
 #include <string>
 
@@ -65,7 +66,7 @@ bool getYesNo(std::string prompt, bool defaultValue)
 void clearScreen()
 {
     // we could use "clear" or "cls" but it's not portable
-    for (int i = 0; i < 50; i++)
+    for (int i = 0; i < 10; i++)
         std::cout << std::endl;
 }
 
@@ -92,6 +93,29 @@ Table *loadGame(std::ifstream &save)
     // imlement later
 
     return table;
+}
+
+int getRangedValue(std::string prompt, int min, int max)
+{
+    std::cout << prompt << "[" << min << ", " << max << "]" << std::endl;
+
+    bool valid = false;
+    int choice = -1;
+    while (!valid)
+    {
+        std::string choiceStr = getLine();
+        choice = std::stoi(choiceStr);
+
+        if (choice >= min && choice <= max)
+            break;
+        else
+        {
+            std::cout << "Invalid choice. Please try again." << std::endl;
+            std::cout << "Input must be between " << min << "and " << max << std::endl;
+        }
+    }
+
+    return choice;
 }
 
 } // namespace Utils

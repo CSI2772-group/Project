@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/benmclean/CSI2772/labs/Project/build",
+  "command": "/usr/bin/c++    -g   -std=gnu++11 -o CMakeFiles/beans.dir/src/main.cpp.o -c /home/benmclean/CSI2772/labs/Project/src/main.cpp",
+  "file": "/home/benmclean/CSI2772/labs/Project/src/main.cpp"
+}
+]

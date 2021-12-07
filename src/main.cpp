@@ -86,7 +86,7 @@ void drawPlayerCards(Table *table, int num)
 
 int main()
 {
-    // Print corny ascii art  🌽
+    // 🌽 Print corny ascii art 🌽
     std::cout << beanAsciiArt;
     std::cout << "Welcome to the Bean Game!\nLiterally Fall Guys™ except its "
                  "like an obscure card game :/\n";
@@ -107,7 +107,6 @@ int main()
 
         //  TODO: (Optional) Auto add trade cards to chains (later discard them)
 
-        // TODO: Ask user input here
         Utils::clearScreen();
         Utils::printTable(table);
 
@@ -126,6 +125,8 @@ int main()
         bool discarded = false;
         while (true)
         {
+            Utils::clearScreen();
+            Utils::printTable(table);
             std::cout << "[e]nd turn\t";
             std::cout << "[s]ave and quit\t"; // TODO: Implement the saving stuff
             std::cout << "[t]rade\t";         // TODO: trade from trade area
@@ -169,6 +170,18 @@ int main()
                 break;
             case 'b':
                 currentPlayer->buyThirdChain();
+                break;
+            case 't':
+                // What if trade area is empty
+                if (!table->tradeArea.cards.empty())
+                {
+                    Card *card = table->tradeArea.chooseCard();
+                    currentPlayer->playCard(card);
+                }
+                else
+                {
+                    std::cout << "The trade area is empty!" << std::endl;
+                }
                 break;
             default:
                 std::cout << "Invalid input!" << std::endl;
