@@ -90,10 +90,7 @@ class ChainBase
   public:
     virtual int sellValue() = 0;
 
-    virtual ChainBase &operator+=(Card *c)
-    {
-        return *this;
-    }
+    virtual ChainBase &operator+=(Card *c) = 0;
 
     virtual char chainType()
     {
@@ -103,6 +100,7 @@ class ChainBase
     int chainSize = 1; // Start with 1 card
 
     ChainBase() = default;
+    virtual ~ChainBase() = default;
 };
 
 // template class that extends "Card"
@@ -213,13 +211,21 @@ class ChainFactory
         default:
             throw IllegalType();
         }
+        chains.push_back(chain);
         return chain;
     }
 
+    void DeleteFactory()
+    {
+        for (auto chain : chains)
+        {
+            delete chain;
+        }
+    }
   private:
     ChainFactory() = default;
 
-    std::vector<Card *> cards;
+    std::vector<ChainBase *> chains;
 };
 
 // endregion
@@ -233,12 +239,8 @@ class DiscardPile : public std::vector<Card *>
   public:
     DiscardPile() = default;
 
-    DiscardPile(const DiscardPile &dp)
+    DiscardPile(const DiscardPile &dp) : std::vector<Card *>(dp)
     {
-        for (int i = 0; i < size(); i++)
-        {
-            push_back(dp.at(i)); // unclear if this is supposed to be a clone or copy
-        }
     }
 
     DiscardPile &operator+=(Card *card)

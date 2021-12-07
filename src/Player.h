@@ -45,7 +45,7 @@ class Player
         // Load the chains
         unsigned int numChains;
         is.read((char *)&numChains, sizeof(numChains));
-        for (int i = 0; i < numChains; i++)
+        for (unsigned int i = 0; i < numChains; i++)
         {
             // TODO: Move this to chain constructor
             // Get the chain type
@@ -149,7 +149,7 @@ class Player
         os << player.name;
         os.write(reinterpret_cast<const char *>(&player.numCoins), sizeof(player.numCoins));
         os.write(reinterpret_cast<const char *>(&player.maxNumChains), sizeof(player.maxNumChains));
-        unsigned int validChains = 0;
+        auto validChains = 0;
         for (int i = 0; i < player.maxNumChains; i++)
         {
             if (player.chains[i] != nullptr)
@@ -158,7 +158,7 @@ class Player
             }
         }
         os.write(reinterpret_cast<const char *>(&validChains), sizeof(validChains));
-        for (int i = 0; i < validChains; i++)
+        for (auto i = 0; i < validChains; i++)
         {
             os << player.chains[i]->chainType();
             unsigned char size = player.chains[i]->chainSize;
@@ -230,7 +230,6 @@ class Player
         std::cout << "You've sold the " << chains[choice]->chainType() << " crop for " << profit << " coins."
                   << std::endl;
         numCoins += profit;
-        delete (chains[choice]);
         chains[choice] = ChainFactory::getFactory()->createChain(card->getShortName());
     }
 

@@ -35,7 +35,7 @@ class Table
     {
     }
 
-    Table(const TradeArea &tradeArea);
+    Table(const TradeArea &tradeArea) = delete; // Disable copy constructor
 
     bool win(std::string &winner) const
     {
@@ -109,24 +109,24 @@ class Table
     {
         Player *currentPlayer = getCurrentPlayer();
 
-        std::cout << "Current turn: " << currentPlayer->getName() << std::endl;
-        std::cout << "Deck size: " << deck.size() << std::endl;
-        std::cout << "Discard pile size: " << discardPile.size() << std::endl;
-        tradeArea.pprint(std::cout);
-        std::cout << std::endl;
-        std::cout << "Your Crops: " << std::endl;
+        out << "Current turn: " << currentPlayer->getName() << std::endl;
+        out << "Deck size: " << deck.size() << std::endl;
+        out << "Discard pile size: " << discardPile.size() << std::endl;
+        tradeArea.pprint(out);
+        out << std::endl;
+        out << "Your Crops: " << std::endl;
         // Print current player crops
-        currentPlayer->printChains(std::cout);
-        std::cout << std::endl;
-        std::cout << "Hand: ";
+        currentPlayer->printChains(out);
+        out << std::endl;
+        out << "Hand: ";
         // Print current player hand
-        currentPlayer->printHand(std::cout, true);
-        std::cout << "Your Coins: " << currentPlayer->getNumCoins() << std::endl;
-        std::cout << std::endl;
+        currentPlayer->printHand(out, true);
+        out << "Your Coins: " << currentPlayer->getNumCoins() << std::endl;
+        out << std::endl;
     }
     bool p1Turn = true;
-    Player player2;
     Player player1;
+    Player player2;
     Deck deck;
     DiscardPile discardPile;
     TradeArea tradeArea;

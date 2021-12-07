@@ -98,8 +98,8 @@ int main()
     while (!table->deck.empty())
     {
         currentPlayer = table->getCurrentPlayer();
-        //          Put 3 cards from top deck into trade area
 
+        //          Put 3 cards from top deck into trade area
         table->drawToTradeArea(3);
 
         // Update trade area from discard pile
@@ -148,7 +148,7 @@ int main()
             {
             case 'e':
                 doneWithTurn = true;
-                std::cout << "Ending turn.." << std::endl;
+                std::cout << "Ending turn..." << std::endl;
                 break;
             case 'p': // Plant again
                 if (playedTwice)
