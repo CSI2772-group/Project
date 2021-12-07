@@ -211,7 +211,6 @@ class Player
             chains[choice]->chainSize + 1 <
                 getCardsPerCoinMap(card->getShortName(), 4)) // Increment the current crop while not allowing overflow
         {
-            // TODO: Check if we passed the crop limit
             *chains[choice] += card;
             std::cout << "You've placed a " << card->getName() << " in the " << chains[choice]->chainType() << " crop."
                       << std::endl;

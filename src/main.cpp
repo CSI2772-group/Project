@@ -129,7 +129,7 @@ int main()
             table->pprint(std::cout);
             std::cout << "[e]nd turn\t";
             std::cout << "[s]ave and quit\t"; // TODO: Implement the saving stuff
-            std::cout << "[t]rade\t";         // TODO: trade from trade area
+            std::cout << "[t]rade\t";
             if (!playedTwice)
                 std::cout << "[p]lay again\t";
             if (!discarded)
