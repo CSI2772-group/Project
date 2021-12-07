@@ -88,7 +88,7 @@ class Hand
 class ChainBase
 {
   public:
-    virtual int sell() = 0;
+    virtual int sellValue() = 0;
 
     virtual ChainBase &operator+=(Card *c)
     {
@@ -100,7 +100,7 @@ class ChainBase
         return '#';
     }
 
-    int chainSize = 0;
+    int chainSize = 1; // Start with 1 card
 
     ChainBase() = default;
 };
@@ -136,7 +136,7 @@ template <class T> class Chain : public ChainBase
         return *this;
     }
 
-    int sell() override
+    int sellValue() override
     {
         if (chainSize >= getCardsPerCoinMap(chainType(), 4))
         {
@@ -348,18 +348,18 @@ class TradeArea
     // Print s the trade area
     void pprint(std::ostream &os) const
     {
-        os << "Trade Area: " << std::endl;
+        os << "Trade Area: ";
         for (auto card : cards)
         {
-            card->pprint(std::cout);
+            std::cout << card->getName() << " ";
         }
+        std::cout << std::endl;
     }
 
     Card *chooseCard()
     {
         // Ask user which card in hard to discard
-
-        int chosenIndex = Utils::getRangedValue("What card from the trade area would you like to pick", 0, 99);
+        int chosenIndex = Utils::getRangedValue("What card from the trade area would you like to pick", 0, cards.size() - 1);
 
         // Return card, and remove it from the trade area
         Card *card = cards.at(chosenIndex);
