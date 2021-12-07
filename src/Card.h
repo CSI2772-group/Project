@@ -8,22 +8,44 @@
 #include <random>
 #include <vector>
 
-struct valueTable
+#define GCPC_ENTRY(cardType, a, b, c, d)                                                                               \
+    case (cardType):                                                                                                   \
+        switch (coin)                                                                                                  \
+        {                                                                                                              \
+        case 1:                                                                                                        \
+            return a;                                                                                                  \
+        case 2:                                                                                                        \
+            return b;                                                                                                  \
+        case 3:                                                                                                        \
+            return c;                                                                                                  \
+        case 4:                                                                                                        \
+            return d;                                                                                                  \
+        default:                                                                                                       \
+            return -1000;                                                                                              \
+        }
+
+int getCardsPerCoinMap(char cardType, int coin)
 {
-    valueTable(int a, int b, int c, int d) : oneC(a), twoC(b), threeC(c), fourC(d)
+    switch (cardType)
     {
+        GCPC_ENTRY('B', 4, 6, 8, 10);
+
+        GCPC_ENTRY('C', 3, 6, 8, 9);
+
+        GCPC_ENTRY('S', 3, 5, 7, 8);
+
+        GCPC_ENTRY('G', 3, 5, 6, 7);
+
+        GCPC_ENTRY('s', 2, 4, 6, 7);
+
+        GCPC_ENTRY('b', 2, 4, 5, 6);
+
+        GCPC_ENTRY('R', 2, 3, 4, 5);
+
+        GCPC_ENTRY('g', 0, 2, 3, 0);
     }
-
-    int oneC;
-    int twoC;
-    int threeC;
-    int fourC;
-};
-
-std::map<char, valueTable> valueTableMap = {{'C', valueTable(3, 6, 8, 9)}, {'S', valueTable(3, 5, 7, 8)},
-                                            {'G', valueTable(3, 5, 6, 7)}, {'s', valueTable(2, 4, 6, 7)},
-                                            {'b', valueTable(2, 4, 5, 6)}, {'R', valueTable(2, 3, 4, 5)},
-                                            {'g', valueTable(0, 2, 3, 0)}};
+    return -1000;
+}
 
 // region Class declaration macros
 // I really don't want to type extra 160 loc
@@ -56,23 +78,7 @@ std::map<char, valueTable> valueTableMap = {{'C', valueTable(3, 6, 8, 9)}, {'S',
         }                                                                                                              \
         int getCardsPerCoin(int coins) override                                                                        \
         {                                                                                                              \
-            switch (coins)                                                                                             \
-            {                                                                                                          \
-            case 1:                                                                                                    \
-                return valueTableMap.at(chr).oneC;                                                                     \
-                break;                                                                                                 \
-            case 2:                                                                                                    \
-                return valueTableMap.at(chr).twoC;                                                                     \
-                break;                                                                                                 \
-            case 3:                                                                                                    \
-                return valueTableMap.at(chr).threeC;                                                                   \
-                break;                                                                                                 \
-            case 4:                                                                                                    \
-                return valueTableMap.at(chr).fourC;                                                                    \
-                break;                                                                                                 \
-            default:                                                                                                   \
-                return 0;                                                                                              \
-            }                                                                                                          \
+            return getCardsPerCoinMap(chr, coins);                                                                     \
         }                                                                                                              \
         static const char cardType = chr;                                                                              \
     }

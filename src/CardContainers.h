@@ -2,6 +2,7 @@
 #define BEANS_CARDCONTAINERS_H
 
 #include "Card.h"
+#include "Utils.h"
 #include <list>
 
 // region Deck
@@ -38,7 +39,7 @@ class Deck : public std::vector<Card *>
 
 // region Hand
 
-class Hand : public std::list<Card *>
+class Hand
 {
     friend class Player;
 
@@ -47,29 +48,29 @@ class Hand : public std::list<Card *>
 
     Hand &operator+=(Card *card)
     {
-        push_back(card);
+        cards.push_back(card);
         return *this;
     }
 
     Card *play()
     {
-        Card *c = front();
-        pop_front();
+        Card *c = cards.front();
+        cards.pop_front();
         return c;
     }
 
     Card *top()
     {
-        return front();
+        return cards.front();
     }
 
     Card *operator[](int i)
     {
         // Return i-th card from the hand and remove it from the hand
-        auto it = begin();
+        auto it = cards.begin();
         std::advance(it, i);
         Card *c = *it;
-        erase(it);
+        cards.erase(it);
         return c;
     }
 
@@ -77,6 +78,8 @@ class Hand : public std::list<Card *>
     friend std::ostream &operator<<(std::ostream &, const Hand &);
 
     Hand(std::istream &, const CardFactory *);
+
+    std::list<Card *> cards;
 };
 
 // endregion
@@ -94,7 +97,7 @@ class ChainBase
 
     virtual char chainType()
     {
-        return '*';
+        return '#';
     }
 
     int chainSize = 0;
@@ -135,8 +138,26 @@ template <class T> class Chain : public ChainBase
 
     int sell() override
     {
-        Card *c = dynamic_cast<Card *>(CardFactory::getFactory()->makeCard(chainType()));
-        return c->getCoinsPerCard(chainSize);
+        if (chainSize >= getCardsPerCoinMap(chainType(), 4))
+        {
+            return 4;
+        }
+        else if (chainSize >= getCardsPerCoinMap(chainType(), 3))
+        {
+            return 3;
+        }
+        else if (chainSize >= getCardsPerCoinMap(chainType(), 2))
+        {
+            return 2;
+        }
+        else if (chainSize >= getCardsPerCoinMap(chainType(), 1))
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     char chainType() override
@@ -332,6 +353,39 @@ class TradeArea
         {
             card->pprint(std::cout);
         }
+    }
+
+    Card *chooseCard()
+    {
+        // Ask user which card in hard to discard
+
+        int chosenIndex = Utils::getRangedValue("What card from the trade area would you like to pick", 0, 99);
+
+        // Return card, and remove it from the trade area
+        Card *card = cards.at(chosenIndex);
+        cards.erase(cards.begin() + chosenIndex);
+        return card;
+    }
+
+    std::vector<Card *> getUniqueCards()
+    {
+        std::vector<Card *> unique;
+
+        for (auto *c : cards)
+        {
+            // for each card in hand
+
+            // check to see if its already in unique
+            bool anyEqual = false;
+            for (auto *u : unique)
+                anyEqual = anyEqual || c->getName() == u->getName();
+
+            // if it's not, add it to unique
+            if (!anyEqual)
+                unique.push_back(c);
+        }
+
+        return unique;
     }
 
     std::vector<Card *> cards;

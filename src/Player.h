@@ -5,6 +5,7 @@
 #ifndef BEANS_PLAYER_H
 #define BEANS_PLAYER_H
 
+//#include "Utils.h"
 #include <string>
 
 class Player
@@ -184,58 +185,62 @@ class Player
             i++;
         }
     }
+    int chooseChain()
+    {
+        return Utils::getRangedValue("In what crop do you want to place this card?", 0, getNumChains() - 1);
+    }
+
+    bool playCard(Card *card)
+    {
+        int choice = chooseChain();
+
+        if (chains[choice] == nullptr) // Create a new crop
+        {
+            chains[choice] = ChainFactory::getFactory()->createChain(card->getShortName());
+            std::cout << "You've planted a " << card->getName() << " crop!" << std::endl;
+            return true;
+        }
+        if (chains[choice]->chainType() == card->getShortName() &&
+            chains[choice]->chainSize + 1 <
+                getCardsPerCoinMap(card->getShortName(), 4)) // Increment the current crop while not allowing overflow
+        {
+            // TODO: Check if we passed the crop limit
+            *chains[choice] += card;
+            std::cout << "You've placed a " << card->getName() << " in the " << chains[choice]->chainType() << " crop."
+                      << std::endl;
+            return true;
+        }
+        else
+        {
+            sellAndReplaceChain(card, choice);
+        }
+
+        return false;
+    }
+
+    bool sellAndReplaceChain(Card *card, int choice)
+    {
+        int profit = chains[choice]->sell();
+        std::cout << "You've sold the " << chains[choice]->chainType() << " crop for " << profit << " coins."
+                  << std::endl;
+        numCoins += profit;
+        delete (chains[choice]);
+        chains[choice] = ChainFactory::getFactory()->createChain(card->getShortName());
+    }
 
     void plantTop()
     {
-        Card *card = hand.front();
-        hand.pop_front();
+        Card *card = hand.play();
         std::string cardName = card->getName();
-        // TODO: Force user to use card
-        std::cout << "You've drawn a... " << cardName << std::endl;
-        std::cout << "In what crop do you want to place this card? [0-";
-        std::cout << getMaxNumChains() - 1 << "]" << std::endl;
+        std::cout << "You've drawn a... " << cardName << " from the top of your hand" << std::endl;
+        playCard(card);
+    }
 
-        bool valid = false;
-        while (!valid)
-        {
-            char choice;
-            std ::cin >> choice;
-            bool exists = false;
-            // Check if choice is between 0 and getMaxNumChains() - 1
-            if (choice >= '0' && choice <= '0' + getMaxNumChains() - 1)
-            {
-                valid = true;
-                // Check if we are putting or replacing the crop
-                int choiceInt = choice - '0';
-                if (chains[choiceInt] == nullptr)
-                {
-                    chains[choiceInt] = ChainFactory::getFactory()->createChain(card->getShortName());
-                    std::cout << "You've planted a " << card->getName() << " crop!" << std::endl;
-                }
-                if (chains[choiceInt]->chainType() == card->getShortName())
-                {
-                    // put crop
-                    *chains[choiceInt] += card;
-                    std::cout << "You've placed a " << card->getName() << " in the " << chains[choiceInt]->chainType()
-                              << " crop." << std::endl;
-                }
-                else
-                {
-                    // sell crop
-                    int profit = chains[choiceInt]->sell();
-                    std::cout << "You've sold the " << chains[choiceInt]->chainType() << " crop for " << profit
-                              << " coins." << std::endl;
-                    numCoins += profit;
-                    delete (chains[choiceInt]);
-                    chains[choiceInt] = ChainFactory::getFactory()->createChain(card->getShortName());
-                }
-            }
-            else
-            {
-                std::cout << "Invalid choice. Please try again." << std::endl;
-                std::cout << "Input must be between 0 and " << getMaxNumChains() - 1 << std::endl;
-            }
-        }
+    void playTrade(Card *card)
+    {
+        std::string cardName = card->getName();
+        std::cout << "You've drawn a... " << cardName << " from the trade area" << std::endl;
+        playCard(card);
     }
 
     void discardAny()
@@ -243,7 +248,7 @@ class Player
         // Ask user which card in hard to discard
         std::cout << "Hand: ";
         int i = 0;
-        for (auto card : hand)
+        for (auto card : hand.cards)
         {
             std::cout << "(" << i++ << ") " << card->getName() << " | ";
         }
@@ -257,7 +262,7 @@ class Player
             std::cout << "Input must be between 0 and " << i - 1 << std::endl;
             std::cin >> choice;
         }
-        hand.remove(hand[choice]);
+        hand[choice];
     }
 
     Hand hand;
@@ -273,9 +278,9 @@ void Player::printHand(std::ostream &out, bool all)
 {
     if (all)
     {
-        for (int i = 0; i < hand.size(); ++i)
+        for (auto card : hand.cards)
         {
-            out << hand[i]->getName() << " ";
+            out << card->getName() << " ";
         }
     }
     else

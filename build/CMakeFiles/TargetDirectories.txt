@@ -1,0 +1,3 @@
+/home/benmclean/CSI2772/labs/Project/build/CMakeFiles/edit_cache.dir
+/home/benmclean/CSI2772/labs/Project/build/CMakeFiles/rebuild_cache.dir
+/home/benmclean/CSI2772/labs/Project/build/CMakeFiles/beans.dir
