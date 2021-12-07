@@ -74,6 +74,8 @@ class Table
             if (tradeArea.legal(discardPile.top()))
             {
                 tradeArea += discardPile.pickUp();
+            } else {
+                return;
             }
         }
     }
