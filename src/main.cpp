@@ -25,8 +25,8 @@ Table *loadFromFile()
     if (save.is_open())
     {
         std::cout << "Save file found! Do you want to load it? (y/N)" << std::endl;
-        char answer;
-        std::cin >> answer;
+        std::string answerStr = Utils::getLine(1);
+        char answer = answerStr[0];
         if (answer == 'y')
             return new Table(save, CardFactory::getFactory());
     }
@@ -140,8 +140,8 @@ int main()
             }
             std::cout << std::endl;
 
-            char input;
-            std::cin >> input;
+            std::string inputStr = Utils::getLine(1);
+            char input = inputStr[0];
 
             bool doneWithTurn = false;
             switch (input)

@@ -6,7 +6,9 @@
 #define BEANS_PLAYER_H
 
 //#include "Utils.h"
+#include "CardContainers.h"
 #include <string>
+
 
 class Player
 {
@@ -94,7 +96,6 @@ class Player
         return num;
     }
 
-    ChainBase *&operator[](int);
 
     // pays 3 coins to buy third chain
     bool buyThirdChain()
@@ -176,13 +177,19 @@ class Player
             {
                 continue;
             }
-            os << "(" << i << ") " << chain->chainType() << ": ";
+
+            os << "\t(" << i << ") " <<  getBeanNameFromChar(chain->chainType()) << "(";
+            os << chain->sellValue() << "$) " << ": ";
             for (int i = 0; i < chain->chainSize; ++i)
             {
                 os << chain->chainType() << " ";
             }
             os << std::endl;
             i++;
+        }
+        if (i == 0)
+        {
+            os << "\tYou don't have any crops :(" << std::endl;
         }
     }
     int chooseChain()
@@ -220,7 +227,7 @@ class Player
 
     void sellAndReplaceChain(Card *card, int choice)
     {
-        int profit = chains[choice]->sell();
+        int profit = chains[choice]->sellValue();
         std::cout << "You've sold the " << chains[choice]->chainType() << " crop for " << profit << " coins."
                   << std::endl;
         numCoins += profit;
@@ -253,15 +260,7 @@ class Player
             std::cout << "(" << i++ << ") " << card->getName() << " | ";
         }
         std::cout << "Which card do you want to discard? [0-" << i - 1 << "]" << std::endl;
-        int choice;
-        std::cin >> choice;
-        bool valid = false;
-        while (choice < 0 && choice > i - 1)
-        {
-            std::cout << "Invalid choice. Please try again." << std::endl;
-            std::cout << "Input must be between 0 and " << i - 1 << std::endl;
-            std::cin >> choice;
-        }
+        int choice = Utils::getRangedValue("", 0, i - 1);
         hand[choice];
     }
 
@@ -287,6 +286,7 @@ void Player::printHand(std::ostream &out, bool all)
     {
         out << hand.top()->getName();
     }
+    out << std::endl;
 }
 
 #endif // BEANS_PLAYER_H
