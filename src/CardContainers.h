@@ -2,6 +2,7 @@
 #define BEANS_CARDCONTAINERS_H
 
 #include "Card.h"
+#include "Utils.h"
 #include <list>
 
 // region Deck
@@ -9,7 +10,7 @@ class Deck : public std::vector<Card *>
 {
     friend class CardFactory;
 
-public:
+  public:
     Deck() = default;
 
     Card *draw()
@@ -38,35 +39,38 @@ public:
 
 // region Hand
 
-class Hand : public std::list<Card *>
+class Hand
 {
     friend class Player;
 
-public:
+  public:
     Hand() = default;
 
     Hand &operator+=(Card *card)
     {
-        push_back(card);
+        cards.push_back(card);
         return *this;
     }
 
     Card *play()
     {
-        Card *c = front();
-        pop_front();
+        Card *c = cards.front();
+        cards.pop_front();
         return c;
     }
 
-    Card *top() { return front(); }
+    Card *top()
+    {
+        return cards.front();
+    }
 
     Card *operator[](int i)
     {
         // Return i-th card from the hand and remove it from the hand
-        auto it = begin();
+        auto it = cards.begin();
         std::advance(it, i);
         Card *c = *it;
-        erase(it);
+        cards.erase(it);
         return c;
     }
 
@@ -74,6 +78,8 @@ public:
     friend std::ostream &operator<<(std::ostream &, const Hand &);
 
     Hand(std::istream &, const CardFactory *);
+
+    std::list<Card *> cards;
 };
 
 // endregion
@@ -81,30 +87,37 @@ public:
 // region Chain
 class ChainBase
 {
-public:
-    virtual int sell() = 0;
+  public:
+    virtual int sellValue() = 0;
 
-    virtual ChainBase &operator+=(Card *c) = 0;
+    virtual ChainBase &operator+=(Card *c)
+    {
+        return *this;
+    }
 
-    virtual char chainType() = 0;
+    virtual char chainType()
+    {
+        return '#';
+    }
 
-    int chainSize = 0;
+    int chainSize = 1; // Start with 1 card
 
-    ChainBase();
+    ChainBase() = default;
 };
 
 // template class that extends "Card"
-template <class T>
-class Chain : public ChainBase
+template <class T> class Chain : public ChainBase
 {
     static_assert(std::is_base_of<Card, T>::value, "T must derive from Card");
 
-public:
+  public:
     Chain() = default;
 
     // TODO: Implement chain deserialization (it takes a char and a byte from
     // istream)
-    Chain(std::istream &is, CardFactory *factory) {}
+    Chain(std::istream &is, CardFactory *factory)
+    {
+    }
 
     Chain<T> &operator+=(Card *card) override
     {
@@ -120,31 +133,44 @@ public:
             // cast failed
             throw IllegalType();
         }
+        return *this;
     }
 
-    int sell() override
+    int sellValue() override
     {
-
-        if (chainSize >= T::getCardsPerCoin(4))
+        if (chainSize >= getCardsPerCoinMap(chainType(), 4))
+        {
             return 4;
-        else if (chainSize >= T::getCardsPerCoin(3))
+        }
+        else if (chainSize >= getCardsPerCoinMap(chainType(), 3))
+        {
             return 3;
-        else if (chainSize >= T::getCardsPerCoin(2))
+        }
+        else if (chainSize >= getCardsPerCoinMap(chainType(), 2))
+        {
             return 2;
-        else if (chainSize >= T::getCardsPerCoin(1))
+        }
+        else if (chainSize >= getCardsPerCoinMap(chainType(), 1))
+        {
             return 1;
+        }
         else
+        {
             return 0;
+        }
     }
 
-    char chainType() override { return T::getShortName(); }
+    char chainType() override
+    {
+        return T::cardType;
+    }
 };
 
 // Chain Factory
 
 class ChainFactory
 {
-public:
+  public:
     void operator=(ChainFactory const &) = delete;
 
     ChainFactory(ChainFactory const &) = delete;
@@ -190,7 +216,7 @@ public:
         return chain;
     }
 
-private:
+  private:
     ChainFactory() = default;
 
     std::vector<Card *> cards;
@@ -204,7 +230,7 @@ private:
 
 class DiscardPile : public std::vector<Card *>
 {
-public:
+  public:
     DiscardPile() = default;
 
     DiscardPile(const DiscardPile &dp)
@@ -228,7 +254,10 @@ public:
         return card;
     }
 
-    Card *top() { return this->back(); }
+    Card *top()
+    {
+        return this->back();
+    }
 
     void print(std::ostream &) const
     {
@@ -243,7 +272,9 @@ public:
     // TODO: Implement serialization and deserialization of discard pile
     friend std::ostream &operator<<(std::ostream &, const DiscardPile &);
 
-    DiscardPile(std::istream &, const CardFactory *) {}
+    DiscardPile(std::istream &, const CardFactory *)
+    {
+    }
 };
 
 // endregion
@@ -252,7 +283,7 @@ public:
 
 class TradeArea
 {
-public:
+  public:
     TradeArea() = default;
 
     // Just adds a card to the trade area
@@ -265,16 +296,14 @@ public:
     // Returns true if the card is legal to add to the trade area
     bool legal(Card *card) const
     {
-        // TODO: Check if this is the right way to do this
-
         for (auto &c : cards)
         {
             if (c->getName() == card->getName())
             {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     // Removes a card of the corresponding bean name from the trade area
@@ -293,7 +322,10 @@ public:
     }
 
     // Returns the number of cards in the trade area
-    int numCards() const { return cards.size(); }
+    int numCards() const
+    {
+        return cards.size();
+    }
 
     // TODO: make sure this works
     friend std::ostream &operator<<(std::ostream &os, const TradeArea &tradeArea)
@@ -302,6 +334,7 @@ public:
         {
             os.put(card->getShortName());
         }
+        return os;
     };
 
     TradeArea(std::istream &is, const CardFactory *cf)
@@ -315,11 +348,44 @@ public:
     // Print s the trade area
     void pprint(std::ostream &os) const
     {
-        os << "Trade Area: " << std::endl;
+        os << "Trade Area: ";
         for (auto card : cards)
         {
-            card->pprint(std::cout);
+            std::cout << card->getName() << " ";
         }
+        std::cout << std::endl;
+    }
+
+    Card *chooseCard()
+    {
+        // Ask user which card in hard to discard
+        int chosenIndex = Utils::getRangedValue("What card from the trade area would you like to pick", 0, cards.size() - 1);
+
+        // Return card, and remove it from the trade area
+        Card *card = cards.at(chosenIndex);
+        cards.erase(cards.begin() + chosenIndex);
+        return card;
+    }
+
+    std::vector<Card *> getUniqueCards()
+    {
+        std::vector<Card *> unique;
+
+        for (auto *c : cards)
+        {
+            // for each card in hand
+
+            // check to see if its already in unique
+            bool anyEqual = false;
+            for (auto *u : unique)
+                anyEqual = anyEqual || c->getName() == u->getName();
+
+            // if it's not, add it to unique
+            if (!anyEqual)
+                unique.push_back(c);
+        }
+
+        return unique;
     }
 
     std::vector<Card *> cards;
