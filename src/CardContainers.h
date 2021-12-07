@@ -275,16 +275,14 @@ class TradeArea
     // Returns true if the card is legal to add to the trade area
     bool legal(Card *card) const
     {
-        // TODO: Check if this is the right way to do this
-
         for (auto &c : cards)
         {
             if (c->getName() == card->getName())
             {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     // Removes a card of the corresponding bean name from the trade area
