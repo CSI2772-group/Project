@@ -166,7 +166,7 @@ int main()
                     break;
                 }
                 discarded = true;
-                currentPlayer->discardAny();
+                table->discardPile.push_back(currentPlayer->discardAny());
                 break;
             case 'b':
                 currentPlayer->buyThirdChain();

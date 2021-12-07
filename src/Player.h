@@ -249,7 +249,7 @@ class Player
         playCard(card);
     }
 
-    void discardAny()
+    Card* discardAny()
     {
         // Ask user which card in hard to discard
         std::cout << "Hand: ";
@@ -260,7 +260,7 @@ class Player
         }
         std::cout << "Which card do you want to discard? [0-" << i - 1 << "]" << std::endl;
         int choice = Utils::getRangedValue("", 0, i - 1);
-        hand[choice];
+        return hand[choice];
     }
 
     Hand hand;
