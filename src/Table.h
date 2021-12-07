@@ -31,7 +31,7 @@ class Table
     }
 
     // Todo : Add a constructor that takes a file name and loads the table from it
-    Table(std::istream &, const CardFactory *) : player1("a"), player2("b")
+    Table(std::ifstream &save, const CardFactory *cf) : player1("a"), player2("b")
     {
     }
 
@@ -101,6 +101,22 @@ class Table
         {
             return &player2;
         }
+    }
+
+    void pprint(std::ostream &out)
+    {
+        Player *currentPlayer = getCurrentPlayer();
+
+        std::cout << "Current turn: " << currentPlayer->getName() << std::endl;
+        std::cout << "Deck size: " << deck.size() << std::endl;
+        std::cout << "Discard pile size: " << discardPile.size() << std::endl;
+        std::cout << "Crops: " << std::endl;
+        // Print current player crops
+        currentPlayer->printChains(std::cout);
+        std::cout << "Hand: ";
+        // Print current player hand
+        currentPlayer->printHand(std::cout, true);
+        std::cout << std::endl;
     }
 
     bool p1Turn = true;

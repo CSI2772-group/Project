@@ -70,34 +70,10 @@ void clearScreen()
         std::cout << std::endl;
 }
 
-void printTable(Table *table)
-{
-    Player *currentPlayer = table->getCurrentPlayer();
-
-    std::cout << "Current turn: " << currentPlayer->getName() << std::endl;
-    std::cout << "Deck size: " << table->deck.size() << std::endl;
-    std::cout << "Discard pile size: " << table->discardPile.size() << std::endl;
-    std::cout << "Crops: " << std::endl;
-    // Print current player crops
-    currentPlayer->printChains(std::cout);
-    std::cout << "Hand: ";
-    // Print current player hand
-    currentPlayer->printHand(std::cout, true);
-    std::cout << std::endl;
-}
-
-Table *loadGame(std::ifstream &save)
-{
-    Table *table;
-
-    // imlement later
-
-    return table;
-}
-
 int getRangedValue(std::string prompt, int min, int max)
 {
     std::cout << prompt << "[" << min << ", " << max << "]" << std::endl;
+    std::flush(std::cout);
 
     bool valid = false;
     int choice = -1;

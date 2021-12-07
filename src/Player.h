@@ -187,7 +187,7 @@ class Player
     }
     int chooseChain()
     {
-        return Utils::getRangedValue("In what crop do you want to place this card?", 0, getNumChains() - 1);
+        return Utils::getRangedValue("In what crop do you want to place this card?", 0, getMaxNumChains() - 1);
     }
 
     bool playCard(Card *card)
@@ -218,7 +218,7 @@ class Player
         return false;
     }
 
-    bool sellAndReplaceChain(Card *card, int choice)
+    void sellAndReplaceChain(Card *card, int choice)
     {
         int profit = chains[choice]->sell();
         std::cout << "You've sold the " << chains[choice]->chainType() << " crop for " << profit << " coins."
