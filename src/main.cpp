@@ -62,10 +62,6 @@ Table *makeTable()
 
 Table *loadOrMakeTable()
 {
-    // Print corny ascii art  🌽
-    std::cout << beanAsciiArt;
-    std::cout << "Welcome to the Bean Game!\nLiterally Fall Guys™ except its like an obscure card game :/\n";
-
     // region Save or Load
     Table *loadedTable;
     loadedTable = loadFromFile();
@@ -74,6 +70,18 @@ Table *loadOrMakeTable()
 
     else
         return makeTable();
+}
+
+// returns deck empty
+void drawPlayerCards(Table *table, int num)
+{
+    Player *currentPlayer = table->getCurrentPlayer();
+
+    for (int i = 0; i < num; i++)
+    {
+        if (!table->deck.empty())
+            currentPlayer->hand += table->deck.draw();
+    }
 }
 
 int main()
@@ -86,40 +94,16 @@ int main()
     Table *table = loadOrMakeTable();
 
     // region Main Game Loop
-    Player *currentPlayer = table->getCurrentPlayer();
+    Player *currentPlayer;
     while (!table->deck.empty())
     {
+        currentPlayer = table->getCurrentPlayer();
         //          Put 3 cards from top deck into trade area
-        int drawnCount = 0;
-        while (drawnCount < 3 && !table->deck.empty())
-        {
-            table->tradeArea.cards.push_back(table->deck.back());
-            table->deck.pop_back();
-            drawnCount++;
-        }
+
+        table->drawToTradeArea(3);
 
         // Update trade area from discard pile
-        //        while(discard_pile.top() in trade area)
-        //            trade area.add(discard_pile.pop())
-        bool inTradeArea = true;
-        while (inTradeArea)
-        {
-            inTradeArea = false;
-            if (!table->discardPile.empty())
-            {
-                Card *topDiscard = table->discardPile.top();
-                for (Card *card : table->tradeArea.cards)
-                {
-                    if (card->getName() == topDiscard->getName())
-                    {
-                        inTradeArea = true;
-                        table->tradeArea.cards.push_back(topDiscard);
-                        table->discardPile.pop_back();
-                        break;
-                    }
-                }
-            }
-        }
+        table->updateTradeArea();
 
         //  TODO: (Optional) Auto add trade cards to chains (later discard them)
 
@@ -198,14 +182,10 @@ int main()
         }
 
         // Put two cards from deck into player
-        currentPlayer->hand.push_back(table->deck.back());
-        table->deck.pop_back();
-        currentPlayer->hand.push_back(table->deck.back());
-        table->deck.pop_back();
+        drawPlayerCards(table, 2);
 
         // Flip player's turn
-        table->p1Turn = !table->p1Turn;
-        currentPlayer = table->getCurrentPlayer();
+        table->changeTurn();
     }
 
     // endregion

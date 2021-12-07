@@ -62,6 +62,31 @@ class Table
         return won;
     }
 
+    void changeTurn()
+    {
+        p1Turn != p1Turn;
+    }
+
+    void updateTradeArea()
+    {
+        while (!discardPile.empty())
+        {
+            if (tradeArea.legal(discardPile.top()))
+            {
+                tradeArea += discardPile.pickUp();
+            }
+        }
+    }
+
+    void drawToTradeArea(int num)
+    {
+        for (int i = 0; i < num; i++)
+        {
+            if (!deck.empty())
+                tradeArea += deck.draw();
+        }
+    }
+
     void printHand(bool) const;
 
     friend std::ostream &operator<<(std::ostream &, const Table &);
@@ -78,7 +103,7 @@ class Table
         }
     }
 
-    bool p1Turn = false;
+    bool p1Turn = true;
     Player player2;
     Player player1;
     Deck deck;

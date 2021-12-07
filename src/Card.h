@@ -8,6 +8,23 @@
 #include <random>
 #include <vector>
 
+struct valueTable
+{
+    valueTable(int a, int b, int c, int d) : oneC(a), twoC(b), threeC(c), fourC(d)
+    {
+    }
+
+    int oneC;
+    int twoC;
+    int threeC;
+    int fourC;
+};
+
+std::map<char, valueTable> valueTableMap = {{'C', valueTable(3, 6, 8, 9)}, {'S', valueTable(3, 5, 7, 8)},
+                                            {'G', valueTable(3, 5, 6, 7)}, {'s', valueTable(2, 4, 6, 7)},
+                                            {'b', valueTable(2, 4, 5, 6)}, {'R', valueTable(2, 3, 4, 5)},
+                                            {'g', valueTable(0, 2, 3, 0)}};
+
 // region Class declaration macros
 // I really don't want to type extra 160 loc
 // because of the inheritance requirements
@@ -42,29 +59,20 @@
             switch (coins)                                                                                             \
             {                                                                                                          \
             case 1:                                                                                                    \
-                return a;                                                                                              \
+                return valueTableMap.at(chr).oneC;                                                                     \
+                break;                                                                                                 \
             case 2:                                                                                                    \
-                return b;                                                                                              \
+                return valueTableMap.at(chr).twoC;                                                                     \
+                break;                                                                                                 \
             case 3:                                                                                                    \
-                return c;                                                                                              \
+                return valueTableMap.at(chr).threeC;                                                                   \
+                break;                                                                                                 \
             case 4:                                                                                                    \
-                return d;                                                                                              \
+                return valueTableMap.at(chr).fourC;                                                                    \
+                break;                                                                                                 \
             default:                                                                                                   \
                 return 0;                                                                                              \
             }                                                                                                          \
-        }                                                                                                              \
-        int getCoinsPerCard(int cards) override                                                                        \
-        {                                                                                                              \
-            if (cards >= d)                                                                                            \
-                return 4;                                                                                              \
-            else if (cards >= c)                                                                                       \
-                return 3;                                                                                              \
-            else if (cards >= b)                                                                                       \
-                return 2;                                                                                              \
-            else if (cards >= a)                                                                                       \
-                return 1;                                                                                              \
-            else                                                                                                       \
-                return 0;                                                                                              \
         }                                                                                                              \
         static const char cardType = chr;                                                                              \
     }
