@@ -28,7 +28,7 @@ Table *loadFromFile()
         char answer;
         std::cin >> answer;
         if (answer == 'y')
-            return Utils::loadGame(save);
+            return new Table(save, CardFactory::getFactory());
     }
 
     return nullptr;
@@ -108,7 +108,7 @@ int main()
         //  TODO: (Optional) Auto add trade cards to chains (later discard them)
 
         Utils::clearScreen();
-        Utils::printTable(table);
+        table->pprint(std::cout);
 
         //  player.play_top_card()
         currentPlayer->plantTop();
@@ -126,7 +126,7 @@ int main()
         while (true)
         {
             Utils::clearScreen();
-            Utils::printTable(table);
+            table->pprint(std::cout);
             std::cout << "[e]nd turn\t";
             std::cout << "[s]ave and quit\t"; // TODO: Implement the saving stuff
             std::cout << "[t]rade\t";         // TODO: trade from trade area
