@@ -98,8 +98,8 @@ int main()
     while (!table->deck.empty())
     {
         currentPlayer = table->getCurrentPlayer();
-        //          Put 3 cards from top deck into trade area
 
+        //          Put 3 cards from top deck into trade area
         table->drawToTradeArea(3);
 
         // Update trade area from discard pile
@@ -129,7 +129,7 @@ int main()
             table->pprint(std::cout);
             std::cout << "[e]nd turn\t";
             std::cout << "[s]ave and quit\t"; // TODO: Implement the saving stuff
-            std::cout << "[t]rade\t";         // TODO: trade from trade area
+            std::cout << "[t]rade\t";
             if (!playedTwice)
                 std::cout << "[p]lay again\t";
             if (!discarded)
@@ -148,7 +148,7 @@ int main()
             {
             case 'e':
                 doneWithTurn = true;
-                std::cout << "Ending turn.." << std::endl;
+                std::cout << "Ending turn..." << std::endl;
                 break;
             case 'p': // Plant again
                 if (playedTwice)
@@ -166,7 +166,7 @@ int main()
                     break;
                 }
                 discarded = true;
-                currentPlayer->discardAny();
+                table->discardPile.push_back(currentPlayer->discardAny());
                 break;
             case 'b':
                 currentPlayer->buyThirdChain();

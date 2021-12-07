@@ -113,25 +113,15 @@ class Card
 
     virtual ~Card() = default;
 
-    virtual int getCardsPerCoin(int coins)
-    {
-        return 0;
-    }
-    virtual int getCoinsPerCard(int cards)
-    {
-        return 0;
-    }
+    virtual int getCardsPerCoin(int coins) = 0;
 
-    virtual char getShortName()
-    {
-        return '*';
-    }
+    virtual char getShortName() = 0;
 
     virtual std::string getName() = 0;
 
-    virtual void pprint(std::ostream &out){};
+    virtual void pprint(std::ostream &out) = 0;
 
-    virtual void print(std::ostream &out){};
+    virtual void print(std::ostream &out) = 0;
 };
 
 CARD_CLASS(Blue, 'B', 4, 6, 8, 10);

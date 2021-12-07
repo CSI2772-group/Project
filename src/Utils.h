@@ -26,7 +26,7 @@ std::string getLine(int minChars)
     {
         std::string line;
         std::getline(std::cin, line);
-        if (line.length() >= minChars)
+        if (line.length() >= (size_t) minChars)
             return line;
         else
             std::cout << "Please enter at least " << minChars << " characters" << std::endl;
