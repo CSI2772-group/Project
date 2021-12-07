@@ -64,7 +64,7 @@ class Table
 
     void changeTurn()
     {
-        p1Turn != p1Turn;
+        p1Turn = !p1Turn;
     }
 
     void updateTradeArea()
@@ -110,15 +110,18 @@ class Table
         std::cout << "Current turn: " << currentPlayer->getName() << std::endl;
         std::cout << "Deck size: " << deck.size() << std::endl;
         std::cout << "Discard pile size: " << discardPile.size() << std::endl;
-        std::cout << "Crops: " << std::endl;
+        tradeArea.pprint(std::cout);
+        std::cout << std::endl;
+        std::cout << "Your Crops: " << std::endl;
         // Print current player crops
         currentPlayer->printChains(std::cout);
+        std::cout << std::endl;
         std::cout << "Hand: ";
         // Print current player hand
         currentPlayer->printHand(std::cout, true);
+        std::cout << "Your Coins: " << currentPlayer->getNumCoins() << std::endl;
         std::cout << std::endl;
     }
-
     bool p1Turn = true;
     Player player2;
     Player player1;
