@@ -30,9 +30,24 @@ class Table
         }
     }
 
-    // Todo : Add a constructor that takes a file name and loads the table from it
-    Table(std::ifstream &save, const CardFactory *cf) : player1("a"), player2("b")
+    friend std::ostream &operator<<(std::ostream &os, const Table &table)
     {
+        os << table.deck;
+        os << table.discardPile;
+        os << table.tradeArea;
+        os << table.player1;
+        os << table.player2;
+    };
+
+    // Todo : Add a constructor that takes a file name and loads the table from it
+    Table(std::ifstream &save, const CardFactory *cf)
+    {
+        // must ber same order as ostream operation
+        deck = Deck(save, cf);
+        discardPile = DiscardPile(save, cf);
+        tradeArea = TradeArea(save, cf);
+        player1 = Player(save, cf);
+        player2 = Player(save, cf);
     }
 
     Table(const TradeArea &tradeArea) = delete; // Disable copy constructor
@@ -160,6 +175,20 @@ class Table
         }
     }
 
+    void handleSave()
+    {
+        std::ofstream save("save.bean");
+        if (save.is_open())
+        {
+            save << *this;
+            std::cout << "Game saved!" << std::endl;
+        }
+        else
+        {
+            std::cout << "Could not save game!" << std::endl;
+        }
+    }
+
     void handleDecision(char input)
     {
         switch (input)
@@ -175,6 +204,9 @@ class Table
             break;
         case 'b':
             getCurrentPlayer()->buyThirdChain();
+            break;
+        case 's':
+            handleSave();
             break;
         case 't':
             handleTrade();
@@ -245,8 +277,6 @@ class Table
                 tradeArea += deck.draw();
         }
     }
-
-    friend std::ostream &operator<<(std::ostream &, const Table &);
 
     Player *getCurrentPlayer()
     {
