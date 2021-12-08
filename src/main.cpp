@@ -18,72 +18,6 @@ const std::string beanAsciiArt = "      ████████\n"
                                  "          ████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██\n"
                                  "              ████████████████\n";
 
-Table *loadFromFile()
-{
-    std::ifstream save("save.bean");
-
-    if (save.is_open())
-    {
-        std::cout << "Save file found! Do you want to load it? (y/N)" << std::endl;
-        std::string answerStr = Utils::getLine(1);
-        char answer = answerStr[0];
-        if (answer == 'y')
-            return new Table(save, CardFactory::getFactory());
-    }
-
-    return nullptr;
-}
-
-Table *makeTable()
-{
-    std::string p2Name;
-    std::cout << "Starting a new game!" << std::endl;
-
-    // Ask p1 and p2 for names
-    std::cout << "Player 1, what is your name?" << std::endl;
-    std::string p1Name = Utils::getLine(3);
-    std::cout << "Player 2, what is your name?" << std::endl;
-    while (true)
-    {
-        p2Name = Utils::getLine(3);
-        if (p2Name != p1Name)
-        {
-            break;
-        }
-        else
-        {
-            std::cout << "Player 2, please choose a different name!" << std::endl;
-        }
-    }
-
-    // Create new game
-    return new Table(p1Name, p2Name);
-}
-
-Table *loadOrMakeTable()
-{
-    // region Save or Load
-    Table *loadedTable;
-    loadedTable = loadFromFile();
-    if (loadedTable)
-        return loadedTable;
-
-    else
-        return makeTable();
-}
-
-// returns deck empty
-void drawPlayerCards(Table *table, int num)
-{
-    Player *currentPlayer = table->getCurrentPlayer();
-
-    for (int i = 0; i < num; i++)
-    {
-        if (!table->deck.empty())
-            currentPlayer->hand += table->deck.draw();
-    }
-}
-
 int main()
 {
     // 🌽 Print corny ascii art 🌽
@@ -91,7 +25,7 @@ int main()
     std::cout << "Welcome to the Bean Game!\nLiterally Fall Guys™ except its "
                  "like an obscure card game :/\n";
 
-    Table *table = loadOrMakeTable();
+    Table *table = Table::loadOrMakeTable();
 
     // region Main Game Loop
     Player *currentPlayer;
@@ -110,7 +44,6 @@ int main()
         Utils::clearScreen();
         table->pprint(std::cout);
 
-        //  player.play_top_card()
         currentPlayer->plantTop();
 
         // while (player don't want to end turn)
@@ -195,17 +128,13 @@ int main()
         }
 
         // Put two cards from deck into player
-        drawPlayerCards(table, 2);
+        table->drawPlayerCards(2);
 
         // Flip player's turn
         table->changeTurn();
     }
 
-    // endregion
-
-    // region Check for winner
-
-    // endregion
+    table->handleGameEnd();
 
     return 0;
 }

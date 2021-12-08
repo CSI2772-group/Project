@@ -37,6 +37,63 @@ class Table
 
     Table(const TradeArea &tradeArea) = delete; // Disable copy constructor
 
+    // builder method to load table from file
+    static Table *loadFromFile()
+    {
+        std::ifstream save("save.bean");
+
+        if (save.is_open())
+        {
+            std::cout << "Save file found! Do you want to load it? (y/N)" << std::endl;
+            std::string answerStr = Utils::getLine(1);
+            char answer = answerStr[0];
+            if (answer == 'y')
+                return new Table(save, CardFactory::getFactory());
+        }
+
+        return nullptr;
+    }
+
+    // builder method to make a new table
+    static Table *makeTable()
+    {
+        std::string p2Name;
+        std::cout << "Starting a new game!" << std::endl;
+
+        // Ask p1 and p2 for names
+        std::cout << "Player 1, what is your name?" << std::endl;
+        std::string p1Name = Utils::getLine(3);
+        std::cout << "Player 2, what is your name?" << std::endl;
+        while (true)
+        {
+            p2Name = Utils::getLine(3);
+            if (p2Name != p1Name)
+            {
+                break;
+            }
+            else
+            {
+                std::cout << "Player 2, please choose a different name!" << std::endl;
+            }
+        }
+
+        // Create new game
+        return new Table(p1Name, p2Name);
+    }
+
+    // builder method to load or make table
+    static Table *loadOrMakeTable()
+    {
+        // region Save or Load
+        Table *loadedTable;
+        loadedTable = loadFromFile();
+        if (loadedTable)
+            return loadedTable;
+
+        else
+            return makeTable();
+    }
+
     bool win(std::string &winner) const
     {
         bool won = false;
@@ -74,7 +131,9 @@ class Table
             if (tradeArea.legal(discardPile.top()))
             {
                 tradeArea += discardPile.pickUp();
-            } else {
+            }
+            else
+            {
                 return;
             }
         }
@@ -102,6 +161,37 @@ class Table
         else
         {
             return &player2;
+        }
+    }
+
+    void handleGameEnd() const
+    {
+        // short names
+        Player p1 = player1;
+        Player p2 = player2;
+        int c1 = player1.getNumCoins();
+        int c2 = player2.getNumCoins();
+        std::string n1 = player1.getName();
+        std::string n2 = player2.getName();
+
+        if (c1 > c2)
+            std::cout << n1 << " wins with " << c1 << " coins against" << c2 << "!" << std::endl;
+        else if (c1 < c2)
+            std::cout << n2 << " wins with " << c2 << " coins against" << c1 << "!" << std::endl;
+        else
+            std::cout << "It's a tie! Everyone wins! (or loses if you think about it)" << std::endl;
+
+        std::cout << "Game over!\n";
+    }
+
+    void drawPlayerCards(int num)
+    {
+        Player *currentPlayer = getCurrentPlayer();
+
+        for (int i = 0; i < num; i++)
+        {
+            if (!deck.empty())
+                currentPlayer->hand += deck.draw();
         }
     }
 

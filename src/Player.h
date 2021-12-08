@@ -9,7 +9,6 @@
 #include "CardContainers.h"
 #include <string>
 
-
 class Player
 {
   public:
@@ -96,7 +95,6 @@ class Player
         return num;
     }
 
-
     // pays 3 coins to buy third chain
     bool buyThirdChain()
     {
@@ -178,8 +176,9 @@ class Player
                 continue;
             }
 
-            os << "\t(" << i << ") " <<  getBeanNameFromChar(chain->chainType()) << "(";
-            os << chain->sellValue() << "$) " << ": ";
+            os << "\t(" << i << ") " << getBeanNameFromChar(chain->chainType()) << "(";
+            os << chain->sellValue() << " coins) "
+               << ": ";
             for (int i = 0; i < chain->chainSize; ++i)
             {
                 os << chain->chainType() << " ";
@@ -248,7 +247,7 @@ class Player
         playCard(card);
     }
 
-    Card* discardAny()
+    Card *discardAny()
     {
         // Ask user which card in hard to discard
         std::cout << "Hand: ";
