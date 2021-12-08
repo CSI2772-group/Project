@@ -20,7 +20,27 @@ class Deck : public std::vector<Card *>
         return card;
     }
 
-    Deck(std::istream &, const CardFactory *);
+    friend std::ostream &operator<<(std::ostream &os, const Deck &deck)
+    {
+        unsigned char numCards = deck.size();
+        os.write(reinterpret_cast<const char *>(&numCards), sizeof(numCards));
+        for (auto card : deck)
+            os << card->getShortName();
+        return os;
+    };
+
+    Deck(std::istream &is, const CardFactory *cf)
+    {
+        unsigned char numCards;
+        is.read((char *)&numCards, sizeof(numCards));
+
+        for (unsigned int i = 0; i < numCards; i++)
+        {
+            char cardType;
+            is.read((char *)&cardType, sizeof(cardType));
+            push_back(cf->getFactory()->makeCard(cardType)); // TODO: verify push_back
+        }
+    };
 
     void shuffle()
     {
@@ -45,6 +65,20 @@ class Hand
 
   public:
     Hand() = default;
+
+    // Loads the hand from a stream
+    Hand(std::istream &is, const CardFactory *cf)
+    {
+        unsigned char numCards;
+        is.read((char *)&numCards, sizeof(numCards));
+
+        for (unsigned int i = 0; i < numCards; i++)
+        {
+            char cardType;
+            is.read((char *)&cardType, sizeof(cardType));
+            cards.push_back(cf->getFactory()->makeCard(cardType)); // TODO: verify push_back
+        }
+    };
 
     Hand &operator+=(Card *card)
     {
@@ -75,9 +109,16 @@ class Hand
     }
 
     // TODO: Implement serializing and deserializing
-    friend std::ostream &operator<<(std::ostream &, const Hand &);
+    friend std::ostream &operator<<(std::ostream &os, const Hand &hand)
+    {
+        unsigned char numCards = hand.cards.size();
+        os.write(reinterpret_cast<const char *>(&numCards), sizeof(numCards));
+        for (auto card : hand.cards)
+            os << card->getShortName();
+        ;
+        return os;
+    };
 
-    Hand(std::istream &, const CardFactory *);
 
     std::list<Card *> cards;
 };
@@ -92,9 +133,20 @@ class ChainBase
 
     virtual ChainBase &operator+=(Card *c) = 0;
 
-    virtual char chainType()
+    virtual char chainType() const
     {
         return '#';
+    }
+
+    friend std::ostream &operator<<(std::ostream &os, const ChainBase &chain)
+    {
+        unsigned char chainType = chain.chainType();
+        os.write(reinterpret_cast<const char *>(&chainType), sizeof(chainType));
+
+        unsigned char chainSize = chain.chainSize;
+        os.write(reinterpret_cast<const char *>(&chainSize), sizeof(chainSize));
+
+        return os;
     }
 
     int chainSize = 1; // Start with 1 card
@@ -104,18 +156,12 @@ class ChainBase
 };
 
 // template class that extends "Card"
-template <class T> class Chain : public ChainBase
+template <class T> class Chain : public virtual ChainBase
 {
     static_assert(std::is_base_of<Card, T>::value, "T must derive from Card");
 
   public:
     Chain() = default;
-
-    // TODO: Implement chain deserialization (it takes a char and a byte from
-    // istream)
-    Chain(std::istream &is, CardFactory *factory)
-    {
-    }
 
     Chain<T> &operator+=(Card *card) override
     {
@@ -158,7 +204,7 @@ template <class T> class Chain : public ChainBase
         }
     }
 
-    char chainType() override
+    char chainType() const override
     {
         return T::cardType;
     }
@@ -222,6 +268,7 @@ class ChainFactory
             delete chain;
         }
     }
+
   private:
     ChainFactory() = default;
 
@@ -272,10 +319,27 @@ class DiscardPile : public std::vector<Card *>
     }
 
     // TODO: Implement serialization and deserialization of discard pile
-    friend std::ostream &operator<<(std::ostream &, const DiscardPile &);
-
-    DiscardPile(std::istream &, const CardFactory *)
+    friend std::ostream &operator<<(std::ostream &os, const DiscardPile &dp)
     {
+        unsigned char numCards = dp.size();
+        os.write(reinterpret_cast<const char *>(&numCards), sizeof(numCards));
+        for (auto card : dp)
+            os << card->getShortName();
+        ;
+        return os;
+    }
+
+    DiscardPile(std::istream & is, const CardFactory *)
+    {
+        unsigned char numCards;
+        is.read(reinterpret_cast<char *>(&numCards), sizeof(numCards));
+        for (unsigned char i = 0; i < numCards; i++)
+        {
+            char cardName;
+            is.read(&cardName, sizeof(cardName));
+            Card *card = CardFactory::getFactory()->makeCard(cardName);
+            push_back(card);
+        }
     }
 };
 
@@ -329,21 +393,26 @@ class TradeArea
         return cards.size();
     }
 
-    // TODO: make sure this works
     friend std::ostream &operator<<(std::ostream &os, const TradeArea &tradeArea)
     {
+        unsigned char numCards = tradeArea.cards.size();
+        os.write(reinterpret_cast<const char *>(&numCards), sizeof(numCards));
         for (auto card : tradeArea.cards)
-        {
-            os.put(card->getShortName());
-        }
+            os << card->getShortName();
+        ;
         return os;
     };
 
     TradeArea(std::istream &is, const CardFactory *cf)
     {
-        while (is)
+        unsigned char numCards;
+        is.read((char *)&numCards, sizeof(numCards));
+
+        for (unsigned int i = 0; i < numCards; i++)
         {
-            cards.push_back(cf->getFactory()->makeCard(is.get()));
+            char cardType;
+            is.read((char *)&cardType, sizeof(cardType));
+            cards.push_back(cf->getFactory()->makeCard(cardType));
         }
     };
 
@@ -358,10 +427,28 @@ class TradeArea
         std::cout << std::endl;
     }
 
+    void pprintOptions(std::ostream &os) const
+    {
+        int index = 0;
+        for (auto card : cards)
+        {
+            std::cout << "(" << index << ") " << card->getName();
+            if (index != cards.size() - 1)
+            {
+                std::cout << " | ";
+            }
+            index++;
+        }
+        std::cout << std::endl;
+    }
+
     Card *chooseCard()
     {
         // Ask user which card in hard to discard
-        int chosenIndex = Utils::getRangedValue("What card from the trade area would you like to pick", 0, cards.size() - 1);
+        std::cout << std::endl;
+        pprintOptions(std::cout);
+        int chosenIndex =
+            Utils::getRangedValue("What card from the trade area would you like to pick", 0, cards.size() - 1);
 
         // Return card, and remove it from the trade area
         Card *card = cards.at(chosenIndex);

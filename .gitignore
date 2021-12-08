@@ -35,5 +35,7 @@
 .vscode
 cmake-*
 
+build
+
 #debug file
 src/main

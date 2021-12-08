@@ -9,12 +9,55 @@
 #include "CardContainers.h"
 #include <string>
 
-
 class Player
 {
   public:
+    Player() = default;
+
     Player(std::string name) : name(name)
     {
+    }
+
+    /*
+     * Serialize the player to the given stream
+     *  The player is serialized as follows:
+     *  - length of the name (one byte)
+     *  - name
+     *  - number of coins
+     *  - number of chains
+     *  - for each chain:
+     *  - character representing each card in the chain
+     *  - chain length
+     */
+    friend std::ostream &operator<<(std::ostream &os, const Player &player)
+    {
+        // Write the player name
+        unsigned char playerNameSize = player.name.size();
+        os.write(reinterpret_cast<const char *>(&playerNameSize), sizeof(playerNameSize));
+
+        for (unsigned int i = 0; i < playerNameSize; i++)
+        {
+            char c = player.name[i];
+            os.write(reinterpret_cast<const char *>(&c), sizeof(c));
+        }
+
+        os.write(reinterpret_cast<const char *>(&player.numCoins), sizeof(player.numCoins));
+        os.write(reinterpret_cast<const char *>(&player.maxNumChains), sizeof(player.maxNumChains));
+
+        int validChains = player.countValidChains();
+        os.write(reinterpret_cast<const char *>(&validChains), sizeof(validChains));
+
+        for(auto chain : player.chains){
+            if (chain != nullptr)
+            {
+                os << *chain;
+            }
+        }
+
+        // Add hand
+        os << player.hand;
+
+        return os;
     }
 
     /*
@@ -27,6 +70,7 @@ class Player
      *  - for each chain:
      *  - character representing each card in the chain
      *  - chain length
+     *  - hand
      */
     Player(std::istream &is, const CardFactory *factory)
     {
@@ -34,7 +78,13 @@ class Player
         unsigned char nameLength;
         is.read((char *)&nameLength, sizeof(nameLength));
         char *nameBuffer = new char[nameLength];
-        is.read(nameBuffer, nameLength);
+        for (unsigned int i = 0; i < nameLength; i++)
+        {
+            char c;
+            is.read((char *)&c, sizeof(c));
+            nameBuffer[i] = c;
+        }
+
         name = std::string(nameBuffer, nameLength);
         delete[] nameBuffer;
 
@@ -47,18 +97,20 @@ class Player
         is.read((char *)&numChains, sizeof(numChains));
         for (unsigned int i = 0; i < numChains; i++)
         {
-            // TODO: Move this to chain constructor
-            // Get the chain type
-            char chainType;
+            // Load each chain
+            unsigned char chainType;
             is.read((char *)&chainType, sizeof(chainType));
-            // Get the chain length
-            unsigned char chainLength;
-            is.read((char *)&chainLength, sizeof(chainLength));
-            // Create and load the chain
-            ChainBase *chain = ChainFactory::getFactory()->createChain(chainType);
-            chain->chainSize = chainLength;
-            chains[i] = chain;
+
+            chains[i] = ChainFactory::getFactory()->createChain(chainType);
+
+            unsigned char numCards;
+            is.read((char *)&numCards, sizeof(numCards));
+
+            chains[i]->chainSize = numCards;
         }
+
+        // Load the hand
+        hand = Hand(is, factory);
     }
 
     std::string getName() const
@@ -96,7 +148,6 @@ class Player
         return num;
     }
 
-
     // pays 3 coins to buy third chain
     bool buyThirdChain()
     {
@@ -131,40 +182,16 @@ class Player
 
     void printHand(std::ostream &, bool);
 
-    /*
-     * Serialize the player to the given stream
-     *  The player is serialized as follows:
-     *  - length of the name (one byte)
-     *  - name
-     *  - number of coins
-     *  - number of chains
-     *  - for each chain:
-     *  - character representing each card in the chain
-     *  - chain length
-     */
-    friend std::ostream &operator<<(std::ostream &os, const Player &player)
+    int countValidChains() const
     {
-        unsigned char playerNameSize = player.name.size();
-        os.write(reinterpret_cast<const char *>(&playerNameSize), sizeof(playerNameSize));
-        os << player.name;
-        os.write(reinterpret_cast<const char *>(&player.numCoins), sizeof(player.numCoins));
-        os.write(reinterpret_cast<const char *>(&player.maxNumChains), sizeof(player.maxNumChains));
-        auto validChains = 0;
-        for (int i = 0; i < player.maxNumChains; i++)
+        int validChains = 0;
+        for (int i = 0; i < maxNumChains; i++)
         {
-            if (player.chains[i] != nullptr)
-            {
+            if (chains[i] != nullptr)
                 validChains++;
-            }
         }
-        os.write(reinterpret_cast<const char *>(&validChains), sizeof(validChains));
-        for (auto i = 0; i < validChains; i++)
-        {
-            os << player.chains[i]->chainType();
-            unsigned char size = player.chains[i]->chainSize;
-            os.write(reinterpret_cast<const char *>(&size), sizeof(size));
-        }
-        return os;
+
+        return validChains;
     }
 
     void printChains(std::ostream &os)
@@ -178,8 +205,9 @@ class Player
                 continue;
             }
 
-            os << "\t(" << i << ") " <<  getBeanNameFromChar(chain->chainType()) << "(";
-            os << chain->sellValue() << "$) " << ": ";
+            os << "\t(" << i << ") " << getBeanNameFromChar(chain->chainType()) << "(";
+            os << chain->sellValue() << " coins) "
+               << ": ";
             for (int i = 0; i < chain->chainSize; ++i)
             {
                 os << chain->chainType() << " ";
@@ -248,7 +276,7 @@ class Player
         playCard(card);
     }
 
-    Card* discardAny()
+    Card *discardAny()
     {
         // Ask user which card in hard to discard
         std::cout << "Hand: ";

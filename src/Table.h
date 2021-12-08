@@ -30,40 +30,244 @@ class Table
         }
     }
 
-    // Todo : Add a constructor that takes a file name and loads the table from it
-    Table(std::ifstream &save, const CardFactory *cf) : player1("a"), player2("b")
+    friend std::ostream &operator<<(std::ostream &os, const Table &table)
     {
+        os << (char)table.p1Turn;
+        os << (char)table.discarded;
+        os << (char)table.playedTwice;
+        os << (char)table.doneTurn;
+
+        os << table.player1;
+        os << table.player2;
+        os << table.deck;
+        os << table.discardPile;
+        os << table.tradeArea;
+
+        return os;
+    };
+
+    // Todo : Add a constructor that takes a file name and loads the table from it
+    Table(std::ifstream &save, const CardFactory *cf)
+    {
+        save.read((char *)&p1Turn, sizeof(p1Turn));
+        save.read((char *)&discarded, sizeof(discarded));
+        save.read((char *)&playedTwice, sizeof(playedTwice));
+        save.read((char *)&doneTurn, sizeof(doneTurn));
+        // must be the same order as ostream operation
+        player1 = Player(save, cf);
+        player2 = Player(save, cf);
+        deck = Deck(save, cf);
+        discardPile = DiscardPile(save, cf);
+        tradeArea = TradeArea(save, cf);
     }
 
     Table(const TradeArea &tradeArea) = delete; // Disable copy constructor
 
-    bool win(std::string &winner) const
+    // builder method to load table from file
+    static Table *loadFromFile()
     {
-        bool won = false;
-        if (deck.empty())
+        std::ifstream save("save.bean");
+
+        if (save.is_open())
         {
-            if (player1.getNumCoins() > player2.getNumCoins())
+            std::cout << "Save file found! Do you want to load it? (y/N)" << std::endl;
+            std::string answerStr = Utils::getLine(1);
+            char answer = answerStr[0];
+            if (answer == 'y')
+                return new Table(save, CardFactory::getFactory());
+        }
+
+        return nullptr;
+    }
+
+    // builder method to make a new table
+    static Table *makeTable()
+    {
+        std::string p2Name;
+        std::cout << "Starting a new game!" << std::endl;
+
+        // Ask p1 and p2 for names
+        std::cout << "Player 1, what is your name?" << std::endl;
+        std::string p1Name = Utils::getLine(3);
+        std::cout << "Player 2, what is your name?" << std::endl;
+        while (true)
+        {
+            p2Name = Utils::getLine(3);
+            if (p2Name != p1Name)
             {
-                winner = player1.getName();
-                won = true;
-            }
-            else if (player1.getNumCoins() < player2.getNumCoins())
-            {
-                winner = player2.getName();
-                won = true;
+                break;
             }
             else
             {
-                winner = "It's a tie! Everyone wins! (or loses if you think about it)";
-                won = true;
+                std::cout << "Player 2, please choose a different name!" << std::endl;
             }
         }
 
-        return won;
+        // Create new game
+        return new Table(p1Name, p2Name);
+    }
+
+    // builder method to load or make table
+    static Table *loadOrMakeTable()
+    {
+        // region Save or Load
+        Table *loadedTable;
+        loadedTable = loadFromFile();
+        if (loadedTable)
+            return loadedTable;
+
+        else
+            return makeTable();
+    }
+
+    char printTurnPrompt()
+    {
+        Utils::clearScreen();
+        pprint(std::cout);
+        std::cout << "[e]nd turn\t";
+        std::cout << "[s]ave and quit\t"; // TODO: Implement the saving stuff
+        std::cout << "[t]rade\t";
+        if (!playedTwice)
+            std::cout << "[p]lay again\t";
+        if (!discarded)
+            std::cout << "[d]iscard\t";
+        if (getCurrentPlayer()->getNumChains() < 3)
+        {
+            std::cout << "[b]uy third chain\t";
+        }
+
+        std::string inputStr = Utils::getLine(1);
+        return inputStr[0];
+    }
+
+    void handleEndTurn()
+    {
+        doneTurn = true;
+        std::cout << "Ending turn..." << std::endl;
+    }
+
+    void handlePlantAgain()
+    {
+        if (playedTwice)
+        {
+            std::cout << "You can only play twice per turn!" << std::endl;
+        }
+        else
+        {
+            playedTwice = true;
+            getCurrentPlayer()->plantTop();
+        }
+    }
+
+    void handleDiscard()
+    {
+        if (discarded)
+        {
+            std::cout << "You can only discard once per turn!" << std::endl;
+        }
+        else
+        {
+            discarded = true;
+            discardPile.push_back(getCurrentPlayer()->discardAny());
+            ;
+        }
+    }
+
+    void handleTrade()
+    {
+        if (!tradeArea.cards.empty())
+        {
+            Card *card = tradeArea.chooseCard();
+            getCurrentPlayer()->playCard(card);
+        }
+        else
+        {
+            std::cout << "The trade area is empty!" << std::endl;
+        }
+    }
+
+    void handleSave()
+    {
+        std::ofstream save("save.bean");
+        if (save.is_open())
+        {
+            save << *this;
+            std::cout << "Game saved!" << std::endl;
+        }
+        else
+        {
+            std::cout << "Could not save game!" << std::endl;
+        }
+    }
+
+    void handleDecision(char input)
+    {
+        switch (input)
+        {
+        case 'e':
+            handleEndTurn();
+            break;
+        case 'p':
+            handlePlantAgain();
+            break;
+        case 'd':
+            handleDiscard();
+            break;
+        case 'b':
+            getCurrentPlayer()->buyThirdChain();
+            break;
+        case 's':
+            quit = true;
+            break;
+        case 't':
+            handleTrade();
+            break;
+        default:
+            std::cout << "Invalid input!" << std::endl;
+            break;
+        }
+    }
+
+    void playNextTurn()
+    {
+        drawToTradeArea(3);
+
+        updateTradeArea();
+
+        Utils::clearScreen();
+        pprint(std::cout);
+
+        getCurrentPlayer()->plantTop();
+
+        while (!doneTurn && !quit)
+        {
+            char input = printTurnPrompt();
+            handleDecision(input);
+        }
+
+        // Put two cards from deck into player
+        drawPlayerCards(2);
+
+        // Flip player's turn
+        changeTurn();
+    }
+
+    void playGame()
+    {
+        while (!deck.empty() && quit == false)
+            playNextTurn();
+        if (!quit)
+            handleGameEnd();
+        else
+            handleSave();
     }
 
     void changeTurn()
     {
+        doneTurn = false;
+        playedTwice = false;
+        discarded = false;
+
         p1Turn = !p1Turn;
     }
 
@@ -74,7 +278,9 @@ class Table
             if (tradeArea.legal(discardPile.top()))
             {
                 tradeArea += discardPile.pickUp();
-            } else {
+            }
+            else
+            {
                 return;
             }
         }
@@ -89,10 +295,6 @@ class Table
         }
     }
 
-    void printHand(bool) const;
-
-    friend std::ostream &operator<<(std::ostream &, const Table &);
-
     Player *getCurrentPlayer()
     {
         if (p1Turn)
@@ -102,6 +304,37 @@ class Table
         else
         {
             return &player2;
+        }
+    }
+
+    void handleGameEnd() const
+    {
+        std::cout << std::endl << "No more cards in the deck, Game over!" << std::endl;
+
+        // short names
+        Player p1 = player1;
+        Player p2 = player2;
+        int c1 = player1.getNumCoins();
+        int c2 = player2.getNumCoins();
+        std::string n1 = player1.getName();
+        std::string n2 = player2.getName();
+
+        if (c1 > c2)
+            std::cout << n1 << " wins with " << c1 << " coins against " << c2 << "!" << std::endl;
+        else if (c1 < c2)
+            std::cout << n2 << " wins with " << c2 << " coins against " << c1 << "!" << std::endl;
+        else
+            std::cout << "It's a tie! Everyone wins! (or loses if you think about it)" << std::endl;
+    }
+
+    void drawPlayerCards(int num)
+    {
+        Player *currentPlayer = getCurrentPlayer();
+
+        for (int i = 0; i < num; i++)
+        {
+            if (!deck.empty())
+                currentPlayer->hand += deck.draw();
         }
     }
 
@@ -124,6 +357,15 @@ class Table
         out << "Your Coins: " << currentPlayer->getNumCoins() << std::endl;
         out << std::endl;
     }
+
+    // state variables to run current turn
+
+    bool quit = false;
+
+    bool discarded = false;
+    bool doneTurn = false;
+    bool playedTwice = false;
+
     bool p1Turn = true;
     Player player1;
     Player player2;

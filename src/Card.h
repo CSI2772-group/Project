@@ -45,24 +45,24 @@ std::string getBeanNameFromChar(char c)
 {
     switch (c)
     {
-        case 'B':
-            return "Blue Bean";
-        case 'C':
-            return "Chili Bean";
-        case 'S':
-            return "Stink Bean";
-        case 'G':
-            return "Green Bean";
-        case 's':
-            return "Soy Bean";
-        case 'b':
-            return "Black Bean";
-        case 'R':
-            return "Red Bean";
-        case 'g':
-            return "Garden Bean";
-        default:
-            return "";
+    case 'B':
+        return "Blue Bean";
+    case 'C':
+        return "Chili Bean";
+    case 'S':
+        return "Stink Bean";
+    case 'G':
+        return "Green Bean";
+    case 's':
+        return "Soy Bean";
+    case 'b':
+        return "Black Bean";
+    case 'R':
+        return "Red Bean";
+    case 'g':
+        return "Garden Bean";
+    default:
+        return "";
     }
 }
 
