@@ -222,6 +222,7 @@ class ChainFactory
             delete chain;
         }
     }
+
   private:
     ChainFactory() = default;
 
@@ -358,10 +359,28 @@ class TradeArea
         std::cout << std::endl;
     }
 
+    void pprintOptions(std::ostream &os) const
+    {
+        int index = 0;
+        for (auto card : cards)
+        {
+            std::cout << "(" << index << ") " << card->getName();
+            if (index != cards.size() - 1)
+            {
+                std::cout << " | ";
+            }
+            index++;
+        }
+        std::cout << std::endl;
+    }
+
     Card *chooseCard()
     {
         // Ask user which card in hard to discard
-        int chosenIndex = Utils::getRangedValue("What card from the trade area would you like to pick", 0, cards.size() - 1);
+        std::cout << std::endl;
+        pprintOptions(std::cout);
+        int chosenIndex =
+            Utils::getRangedValue("What card from the trade area would you like to pick", 0, cards.size() - 1);
 
         // Return card, and remove it from the trade area
         Card *card = cards.at(chosenIndex);
