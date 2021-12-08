@@ -1,7 +1,3 @@
-//
-// Created by fer on 2021-12-03.
-//
-
 #ifndef BEANS_UTILS_H
 #define BEANS_UTILS_H
 
@@ -12,7 +8,6 @@
 namespace Utils
 {
 
-// Get line of at least three characters
 std::string getLine()
 {
     std::string line;
@@ -20,6 +15,7 @@ std::string getLine()
     return line;
 }
 
+// Get line of at least minChars characters
 std::string getLine(int minChars)
 {
     while (true)
@@ -34,7 +30,7 @@ std::string getLine(int minChars)
 }
 
 // Get yes or no
-bool getYesNo(std::string prompt, bool defaultValue)
+bool getYesNo(const std::string &prompt, bool defaultValue)
 {
     std::cout << prompt;
     if (defaultValue)
@@ -65,19 +61,23 @@ bool getYesNo(std::string prompt, bool defaultValue)
 
 void clearScreen()
 {
-    // we could use "clear" or "cls" but it's not portable
+    // If debug mode clear 10 lines, if release mode, clear 100 lines
+#ifdef DEBUG
     for (int i = 0; i < 10; i++)
+#else
+    for (int i = 0; i < 100; i++) // we could use "clear" or "cls" but it's not portable
+#endif
         std::cout << std::endl;
 }
 
-int getRangedValue(std::string prompt, int min, int max)
+// Get a number from the user between min and max (inclusive)
+int getRangedValue(const std::string &prompt, int min, int max)
 {
     std::cout << prompt << "[" << min << ", " << max << "]" << std::endl;
     std::flush(std::cout);
 
-    bool valid = false;
-    int choice = -1;
-    while (!valid)
+    int choice;
+    while (true)
     {
         std::string choiceStr = getLine();
         choice = std::stoi(choiceStr);
