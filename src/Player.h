@@ -1,11 +1,6 @@
-//
-// Created by fer on 2021-11-20.
-//
-
 #ifndef BEANS_PLAYER_H
 #define BEANS_PLAYER_H
 
-//#include "Utils.h"
 #include "CardContainers.h"
 #include <string>
 
@@ -14,7 +9,7 @@ class Player
   public:
     Player() = default;
 
-    Player(std::string name) : name(name)
+    explicit Player(std::string name) : name(std::move(name))
     {
     }
 
@@ -99,7 +94,7 @@ class Player
         for (unsigned int i = 0; i < numChains; i++)
         {
             // Load each chain
-            unsigned char chainType;
+            char chainType;
             is.read((char *)&chainType, sizeof(chainType));
 
             chains[i] = ChainFactory::getFactory()->createChain(chainType);
@@ -181,7 +176,21 @@ class Player
         return false;
     }
 
-    void printHand(std::ostream &, bool);
+    void printHand(std::ostream &out, bool all)
+    {
+        if (all)
+        {
+            for (auto card : hand.cards)
+            {
+                out << card->getName() << " ";
+            }
+        }
+        else
+        {
+            out << hand.top()->getName();
+        }
+        out << std::endl;
+    }
 
     int countValidChains() const
     {
@@ -210,7 +219,7 @@ class Player
             os << "\t(" << i << ") " << getBeanNameFromChar(chain->chainType()) << "(";
             os << chain->sellValue() << " coins) "
                << ": ";
-            for (int i = 0; i < chain->chainSize; ++i)
+            for (int s = 0; s < chain->chainSize; ++s)
             {
                 os << chain->chainType() << " ";
             }
@@ -222,7 +231,8 @@ class Player
             os << "\tYou don't have any crops :(" << std::endl;
         }
     }
-    int chooseChain()
+
+    int chooseChain() const
     {
         return Utils::getRangedValue("In what crop do you want to place this card?", 0, getMaxNumChains() - 1);
     }
@@ -239,7 +249,8 @@ class Player
         }
         if (chains[choice]->chainType() == card->getShortName() &&
             chains[choice]->chainSize + 1 <
-                getCardsPerCoinMap(card->getShortName(), 4)) // Increment the current crop while not allowing overflow
+                getCardsPerCoinMap(card->getShortName(),
+                                   4)) // Increment the current crop while not allowing overflow
         {
             *chains[choice] += card;
             std::cout << "You've placed a " << card->getName() << " in the " << chains[choice]->chainType() << " crop."
@@ -271,13 +282,6 @@ class Player
         playCard(card);
     }
 
-    void playTrade(Card *card)
-    {
-        std::string cardName = card->getName();
-        std::cout << "You've drawn a... " << cardName << " from the trade area" << std::endl;
-        playCard(card);
-    }
-
     Card *discardAny()
     {
         // Ask user which card in hard to discard
@@ -300,21 +304,5 @@ class Player
     int numCoins = 0;
     int maxNumChains = 2;
 };
-
-void Player::printHand(std::ostream &out, bool all)
-{
-    if (all)
-    {
-        for (auto card : hand.cards)
-        {
-            out << card->getName() << " ";
-        }
-    }
-    else
-    {
-        out << hand.top()->getName();
-    }
-    out << std::endl;
-}
 
 #endif // BEANS_PLAYER_H
