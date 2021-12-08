@@ -1,5 +1,5 @@
-#ifndef BEANS_CARDCONTAINERS_H
-#define BEANS_CARDCONTAINERS_H
+#ifndef BEANS_CARD_CONTAINERS_H
+#define BEANS_CARD_CONTAINERS_H
 
 #include "Card.h"
 #include "Utils.h"
@@ -8,8 +8,6 @@
 // region Deck
 class Deck : public std::vector<Card *>
 {
-    friend class CardFactory;
-
   public:
     Deck() = default;
 
@@ -46,12 +44,6 @@ class Deck : public std::vector<Card *>
     {
         std::random_device rd;
         std::mt19937 rng(rd());
-        std::shuffle(begin(), end(), rng);
-    }
-
-    void shuffle(int seed)
-    {
-        std::mt19937 rng(seed);
         std::shuffle(begin(), end(), rng);
     }
 };
@@ -114,7 +106,7 @@ class Hand
         os.write(reinterpret_cast<const char *>(&numCards), sizeof(numCards));
         for (auto card : hand.cards)
             os << card->getShortName();
-        ;
+
         return os;
     };
 
@@ -138,11 +130,11 @@ class ChainBase
 
     friend std::ostream &operator<<(std::ostream &os, const ChainBase &chain)
     {
-        unsigned char chainType = chain.chainType();
+        char chainType = chain.chainType();
         os.write(reinterpret_cast<const char *>(&chainType), sizeof(chainType));
 
-        unsigned char chainSize = chain.chainSize;
-        os.write(reinterpret_cast<const char *>(&chainSize), sizeof(chainSize));
+        unsigned char chainS = chain.chainSize;
+        os.write(reinterpret_cast<const char *>(&chainS), sizeof(chainS));
 
         return os;
     }
@@ -225,7 +217,7 @@ class ChainFactory
 
     ChainBase *createChain(char chainType)
     {
-        ChainBase *chain = nullptr;
+        ChainBase *chain;
         switch (chainType)
         {
         case 'B':
@@ -275,19 +267,15 @@ class ChainFactory
 
 // endregion
 
-// endregion
-
 // region Discard Pile
 
 class DiscardPile : public std::vector<Card *>
 {
   public:
     DiscardPile() = default;
-    DiscardPile& operator=(const DiscardPile&) = default;
+    DiscardPile &operator=(const DiscardPile &) = default;
 
-    DiscardPile(const DiscardPile &dp) : std::vector<Card *>(dp)
-    {
-    }
+    DiscardPile(const DiscardPile &dp) = default;
 
     DiscardPile &operator+=(Card *card)
     {
@@ -323,7 +311,7 @@ class DiscardPile : public std::vector<Card *>
         os.write(reinterpret_cast<const char *>(&numCards), sizeof(numCards));
         for (auto card : dp)
             os << card->getShortName();
-        ;
+
         return os;
     }
 
@@ -370,26 +358,6 @@ class TradeArea
         return false;
     }
 
-    // Removes a card of the corresponding bean name from the trade area
-    Card *trade(std::string name)
-    {
-        for (auto it = cards.begin(); it != cards.end(); ++it)
-        {
-            if ((*it)->getName() == name)
-            {
-                Card *card = *it;
-                cards.erase(it);
-                return card;
-            }
-        }
-        return nullptr;
-    }
-
-    // Returns the number of cards in the trade area
-    int numCards() const
-    {
-        return cards.size();
-    }
 
     friend std::ostream &operator<<(std::ostream &os, const TradeArea &tradeArea)
     {
@@ -397,7 +365,7 @@ class TradeArea
         os.write(reinterpret_cast<const char *>(&numCards), sizeof(numCards));
         for (auto card : tradeArea.cards)
             os << card->getShortName();
-        ;
+
         return os;
     };
 
@@ -446,7 +414,7 @@ class TradeArea
         std::cout << std::endl;
         pprintOptions(std::cout);
         int chosenIndex =
-            Utils::getRangedValue("What card from the trade area would you like to pick", 0, cards.size() - 1);
+            Utils::getRangedValue("What card from the trade area would you like to pick", 0, (int)(cards.size() - 1));
 
         // Return card, and remove it from the trade area
         Card *card = cards.at(chosenIndex);
@@ -454,30 +422,9 @@ class TradeArea
         return card;
     }
 
-    std::vector<Card *> getUniqueCards()
-    {
-        std::vector<Card *> unique;
-
-        for (auto *c : cards)
-        {
-            // for each card in hand
-
-            // check to see if its already in unique
-            bool anyEqual = false;
-            for (auto *u : unique)
-                anyEqual = anyEqual || c->getName() == u->getName();
-
-            // if it's not, add it to unique
-            if (!anyEqual)
-                unique.push_back(c);
-        }
-
-        return unique;
-    }
-
     std::vector<Card *> cards;
 };
 
 // endregion
 
-#endif // BEANS_CARDCONTAINERS_H
+#endif // BEANS_CARD_CONTAINERS_H
