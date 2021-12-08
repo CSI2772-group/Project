@@ -14,8 +14,15 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      fail-fast: false
+      
+      matrix:
+        os: [ubuntu-latest, windows-latest macos-latest]
+        
     steps:
     - uses: actions/checkout@v2
 
@@ -25,5 +32,5 @@ jobs:
     - name: Build
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target beans
-    
+   
       
