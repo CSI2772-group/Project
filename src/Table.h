@@ -32,10 +32,10 @@ class Table
 
     friend std::ostream &operator<<(std::ostream &os, const Table &table)
     {
-        os << table.p1Turn;
-        os << table.discarded;
-        os << table.playedTwice;
-        os << table.doneTurn;
+        os << (char)table.p1Turn;
+        os << (char)table.discarded;
+        os << (char)table.playedTwice;
+        os << (char)table.doneTurn;
 
         os << table.player1;
         os << table.player2;
