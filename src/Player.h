@@ -47,7 +47,8 @@ class Player
         int validChains = player.countValidChains();
         os.write(reinterpret_cast<const char *>(&validChains), sizeof(validChains));
 
-        for(auto chain : player.chains){
+        for (auto chain : player.chains)
+        {
             if (chain != nullptr)
             {
                 os << *chain;
@@ -202,6 +203,7 @@ class Player
 
             if (chain == nullptr)
             {
+                i++;
                 continue;
             }
 

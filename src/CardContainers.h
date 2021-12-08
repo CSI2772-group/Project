@@ -119,7 +119,6 @@ class Hand
         return os;
     };
 
-
     std::list<Card *> cards;
 };
 
@@ -329,7 +328,7 @@ class DiscardPile : public std::vector<Card *>
         return os;
     }
 
-    DiscardPile(std::istream & is, const CardFactory *)
+    DiscardPile(std::istream &is, const CardFactory *)
     {
         unsigned char numCards;
         is.read(reinterpret_cast<char *>(&numCards), sizeof(numCards));
