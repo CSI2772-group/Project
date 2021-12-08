@@ -1,9 +1,5 @@
-
-#include <fstream>
 #include <iostream>
-
 #include "Table.h"
-#include "Utils.h"
 
 const std::string beanAsciiArt = "      ████████\n"
                                  "    ██▒▒▒▒▒▒▒▒▒▒██\n"
