@@ -32,16 +32,27 @@ class Table
 
     friend std::ostream &operator<<(std::ostream &os, const Table &table)
     {
+        os << table.p1Turn;
+        os << table.discarded;
+        os << table.playedTwice;
+        os << table.doneTurn;
+
         os << table.player1;
         os << table.player2;
         os << table.deck;
         os << table.discardPile;
         os << table.tradeArea;
+
+        return os;
     };
 
     // Todo : Add a constructor that takes a file name and loads the table from it
     Table(std::ifstream &save, const CardFactory *cf)
     {
+        save.read((char *)&p1Turn, sizeof(p1Turn));
+        save.read((char *)&discarded, sizeof(discarded));
+        save.read((char *)&playedTwice, sizeof(playedTwice));
+        save.read((char *)&doneTurn, sizeof(doneTurn));
         // must be the same order as ostream operation
         player1 = Player(save, cf);
         player2 = Player(save, cf);
@@ -206,7 +217,7 @@ class Table
             getCurrentPlayer()->buyThirdChain();
             break;
         case 's':
-            handleSave();
+            quit = true;
             break;
         case 't':
             handleTrade();
@@ -228,7 +239,7 @@ class Table
 
         getCurrentPlayer()->plantTop();
 
-        while (!doneTurn)
+        while (!doneTurn && !quit)
         {
             char input = printTurnPrompt();
             handleDecision(input);
@@ -243,14 +254,20 @@ class Table
 
     void playGame()
     {
-        while (!deck.empty())
+        while (!deck.empty() && quit == false)
             playNextTurn();
+        if (!quit)
+            handleGameEnd();
+        else
+            handleSave();
     }
 
     void changeTurn()
     {
         doneTurn = false;
         playedTwice = false;
+        discarded = false;
+
         p1Turn = !p1Turn;
     }
 
@@ -342,7 +359,9 @@ class Table
     }
 
     // state variables to run current turn
-    bool wantsToSave = false; // TODO when player wants to save, at the end of his turn, flip p1Turn and save game
+
+    bool quit = false;
+
     bool discarded = false;
     bool doneTurn = false;
     bool playedTwice = false;

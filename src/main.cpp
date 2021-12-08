@@ -28,7 +28,6 @@ int main()
     Table *table = Table::loadOrMakeTable();
 
     table->playGame();
-    table->handleGameEnd();
 
     return 0;
 }
