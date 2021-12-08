@@ -283,6 +283,7 @@ class DiscardPile : public std::vector<Card *>
 {
   public:
     DiscardPile() = default;
+    DiscardPile& operator=(const DiscardPile&) = default;
 
     DiscardPile(const DiscardPile &dp) : std::vector<Card *>(dp)
     {
@@ -426,17 +427,17 @@ class TradeArea
 
     void pprintOptions(std::ostream &os) const
     {
-        int index = 0;
+        unsigned int index = 0;
         for (auto card : cards)
         {
-            std::cout << "(" << index << ") " << card->getName();
+            os << "(" << index << ") " << card->getName();
             if (index != cards.size() - 1)
             {
-                std::cout << " | ";
+                os << " | ";
             }
             index++;
         }
-        std::cout << std::endl;
+        os << std::endl;
     }
 
     Card *chooseCard()
