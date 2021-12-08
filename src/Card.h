@@ -29,16 +29,17 @@ int getCardsPerCoinMap(char cardType, int coin)
 {
     switch (cardType)
     {
-        GCPC_ENTRY('B', 4, 6, 8, 10);
-        GCPC_ENTRY('C', 3, 6, 8, 9);
-        GCPC_ENTRY('S', 3, 5, 7, 8);
-        GCPC_ENTRY('G', 3, 5, 6, 7);
-        GCPC_ENTRY('s', 2, 4, 6, 7);
-        GCPC_ENTRY('b', 2, 4, 5, 6);
-        GCPC_ENTRY('R', 2, 3, 4, 5);
-        GCPC_ENTRY('g', 0, 2, 3, 0);
+        GCPC_ENTRY('B', 4, 6, 8, 10)
+        GCPC_ENTRY('C', 3, 6, 8, 9)
+        GCPC_ENTRY('S', 3, 5, 7, 8)
+        GCPC_ENTRY('G', 3, 5, 6, 7)
+        GCPC_ENTRY('s', 2, 4, 6, 7)
+        GCPC_ENTRY('b', 2, 4, 5, 6)
+        GCPC_ENTRY('R', 2, 3, 4, 5)
+        GCPC_ENTRY('g', 0, 2, 3, 0)
+        default:
+            return -1000;
     }
-    return -1000;
 }
 
 std::string getBeanNameFromChar(char c)
@@ -80,7 +81,7 @@ std::string getBeanNameFromChar(char c)
         ~name() override = default;                                                                                    \
         void print(std::ostream &out) override                                                                         \
         {                                                                                                              \
-            out << chr;                                                                                                \
+            out << (chr);                                                                                                \
         }                                                                                                              \
         std::string getName() override                                                                                 \
         {                                                                                                              \
@@ -138,7 +139,8 @@ CARD_CLASS(Black, 'b', 2, 4, 5, 6);
 
 CARD_CLASS(Red, 'R', 2, 3, 4, 5);
 
-CARD_CLASS(Garden, 'g', 99, 2, 3, 99); // 99 and 98 are set ridiculously high so that the player never gets them
+CARD_CLASS(Garden, 'g', 99, 2, 3, 99); // 99 and 98 are set ridiculously high
+                                       // so that the player never gets them
 
 // endregion
 
@@ -198,11 +200,21 @@ class CardFactory
         return card;
     }
 
+    void deleteFactory()
+    {
+        for (auto card : cards)
+        {
+            delete card;
+        }
+    }
+
   private:
     CardFactory() = default;
 
     std::vector<Card *> cards;
 };
+
+
 
 // endregion
 
