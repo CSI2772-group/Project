@@ -66,6 +66,20 @@ class Hand
   public:
     Hand() = default;
 
+    // Loads the hand from a stream
+    Hand(std::istream &is, const CardFactory *cf)
+    {
+        unsigned char numCards;
+        is.read((char *)&numCards, sizeof(numCards));
+
+        for (unsigned int i = 0; i < numCards; i++)
+        {
+            char cardType;
+            is.read((char *)&cardType, sizeof(cardType));
+            cards.push_back(cf->getFactory()->makeCard(cardType)); // TODO: verify push_back
+        }
+    };
+
     Hand &operator+=(Card *card)
     {
         cards.push_back(card);
@@ -105,18 +119,6 @@ class Hand
         return os;
     };
 
-    Hand(std::istream &is, const CardFactory *cf)
-    {
-        unsigned char numCards;
-        is.read((char *)&numCards, sizeof(numCards));
-
-        for (unsigned int i = 0; i < numCards; i++)
-        {
-            char cardType;
-            is.read((char *)&cardType, sizeof(cardType));
-            cards.push_back(cf->getFactory()->makeCard(cardType)); // TODO: verify push_back
-        }
-    };
 
     std::list<Card *> cards;
 };
@@ -327,8 +329,17 @@ class DiscardPile : public std::vector<Card *>
         return os;
     }
 
-    DiscardPile(std::istream &, const CardFactory *)
+    DiscardPile(std::istream & is, const CardFactory *)
     {
+        unsigned char numCards;
+        is.read(reinterpret_cast<char *>(&numCards), sizeof(numCards));
+        for (unsigned char i = 0; i < numCards; i++)
+        {
+            char cardName;
+            is.read(&cardName, sizeof(cardName));
+            Card *card = CardFactory::getFactory()->makeCard(cardName);
+            push_back(card);
+        }
     }
 };
 
@@ -401,7 +412,7 @@ class TradeArea
         {
             char cardType;
             is.read((char *)&cardType, sizeof(cardType));
-            cards[i] = cf->getFactory()->makeCard(cardType);
+            cards.push_back(cf->getFactory()->makeCard(cardType));
         }
     };
 

@@ -32,22 +32,22 @@ class Table
 
     friend std::ostream &operator<<(std::ostream &os, const Table &table)
     {
+        os << table.player1;
+        os << table.player2;
         os << table.deck;
         os << table.discardPile;
         os << table.tradeArea;
-        os << table.player1;
-        os << table.player2;
     };
 
     // Todo : Add a constructor that takes a file name and loads the table from it
     Table(std::ifstream &save, const CardFactory *cf)
     {
-        // must ber same order as ostream operation
+        // must be the same order as ostream operation
+        player1 = Player(save, cf);
+        player2 = Player(save, cf);
         deck = Deck(save, cf);
         discardPile = DiscardPile(save, cf);
         tradeArea = TradeArea(save, cf);
-        player1 = Player(save, cf);
-        player2 = Player(save, cf);
     }
 
     Table(const TradeArea &tradeArea) = delete; // Disable copy constructor
@@ -342,6 +342,7 @@ class Table
     }
 
     // state variables to run current turn
+    bool wantsToSave = false; // TODO when player wants to save, at the end of his turn, flip p1Turn and save game
     bool discarded = false;
     bool doneTurn = false;
     bool playedTwice = false;

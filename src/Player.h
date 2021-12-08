@@ -31,6 +31,7 @@ class Player
      */
     friend std::ostream &operator<<(std::ostream &os, const Player &player)
     {
+        // Write the player name
         unsigned char playerNameSize = player.name.size();
         os.write(reinterpret_cast<const char *>(&playerNameSize), sizeof(playerNameSize));
 
@@ -45,10 +46,17 @@ class Player
 
         int validChains = player.countValidChains();
         os.write(reinterpret_cast<const char *>(&validChains), sizeof(validChains));
-        for (auto i = 0; i < validChains; i++)
-        {
-            os << (*player.chains[i]);
+
+        for(auto chain : player.chains){
+            if (chain != nullptr)
+            {
+                os << *chain;
+            }
         }
+
+        // Add hand
+        os << player.hand;
+
         return os;
     }
 
@@ -62,6 +70,7 @@ class Player
      *  - for each chain:
      *  - character representing each card in the chain
      *  - chain length
+     *  - hand
      */
     Player(std::istream &is, const CardFactory *factory)
     {
@@ -75,6 +84,7 @@ class Player
             is.read((char *)&c, sizeof(c));
             nameBuffer[i] = c;
         }
+
         name = std::string(nameBuffer, nameLength);
         delete[] nameBuffer;
 
@@ -98,6 +108,9 @@ class Player
 
             chains[i]->chainSize = numCards;
         }
+
+        // Load the hand
+        hand = Hand(is, factory);
     }
 
     std::string getName() const
