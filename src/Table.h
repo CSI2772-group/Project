@@ -1,7 +1,3 @@
-//
-// Created by fer on 2021-11-20.
-//
-
 #ifndef BEANS_TABLE_H
 #define BEANS_TABLE_H
 
@@ -9,6 +5,7 @@
 #include "CardContainers.h"
 #include "Player.h"
 #include <string>
+#include <fstream>
 
 #define MAKE_CARDS(deck, factory, cardType, amount)                                                                    \
     for (int i = 0; i < amount; i++)                                                                                   \
@@ -46,7 +43,7 @@ class Table
         return os;
     };
 
-    Table(std::ifstream &save, const CardFactory *cf)
+    Table(std::istream &save, const CardFactory *cf)
     {
         save.read((char *)&p1Turn, sizeof(p1Turn));
         save.read((char *)&discarded, sizeof(discarded));
@@ -69,10 +66,8 @@ class Table
 
         if (save.is_open())
         {
-            std::cout << "Save file found! Do you want to load it? (y/N)" << std::endl;
-            std::string answerStr = Utils::getLine(1);
-            char answer = answerStr[0];
-            if (answer == 'y')
+            bool answer = Utils::getYesNo("Do you want to load the game?", false);
+            if (answer)
                 return new Table(save, CardFactory::getFactory());
         }
 
@@ -306,17 +301,23 @@ class Table
         }
     }
 
-    void handleGameEnd() const
+    void handleGameEnd()
     {
         std::cout << std::endl << "No more cards in the deck, Game over!" << std::endl;
 
-        // short names
-        Player p1 = player1;
-        Player p2 = player2;
-        int c1 = player1.getNumCoins();
-        int c2 = player2.getNumCoins();
         std::string n1 = player1.getName();
+        int c1 = player1.getNumCoins();
+
+        int c2 = player2.getNumCoins();
         std::string n2 = player2.getName();
+
+        // Add all the crops to coins if any
+        for (auto &c : player1.chains)
+            if (c != nullptr)
+                c1 += c->sellValue();
+        for (auto &c : player2.chains)
+            if (c != nullptr)
+                c2 += c->sellValue();
 
         if (c1 > c2)
             std::cout << n1 << " wins with " << c1 << " coins against " << c2 << "!" << std::endl;
