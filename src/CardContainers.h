@@ -38,7 +38,7 @@ class Deck : public std::vector<Card *>
         {
             char cardType;
             is.read((char *)&cardType, sizeof(cardType));
-            push_back(cf->getFactory()->makeCard(cardType)); // TODO: verify push_back
+            push_back(cf->getFactory()->makeCard(cardType));
         }
     };
 
@@ -76,7 +76,7 @@ class Hand
         {
             char cardType;
             is.read((char *)&cardType, sizeof(cardType));
-            cards.push_back(cf->getFactory()->makeCard(cardType)); // TODO: verify push_back
+            cards.push_back(cf->getFactory()->makeCard(cardType));
         }
     };
 
@@ -108,7 +108,6 @@ class Hand
         return c;
     }
 
-    // TODO: Implement serializing and deserializing
     friend std::ostream &operator<<(std::ostream &os, const Hand &hand)
     {
         unsigned char numCards = hand.cards.size();
@@ -317,7 +316,6 @@ class DiscardPile : public std::vector<Card *>
         }
     }
 
-    // TODO: Implement serialization and deserialization of discard pile
     friend std::ostream &operator<<(std::ostream &os, const DiscardPile &dp)
     {
         unsigned char numCards = dp.size();

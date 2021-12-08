@@ -46,7 +46,6 @@ class Table
         return os;
     };
 
-    // Todo : Add a constructor that takes a file name and loads the table from it
     Table(std::ifstream &save, const CardFactory *cf)
     {
         save.read((char *)&p1Turn, sizeof(p1Turn));
@@ -125,7 +124,7 @@ class Table
         Utils::clearScreen();
         pprint(std::cout);
         std::cout << "[e]nd turn\t";
-        std::cout << "[s]ave and quit\t"; // TODO: Implement the saving stuff
+        std::cout << "[s]ave and quit\t";
         std::cout << "[t]rade\t";
         if (!playedTwice)
             std::cout << "[p]lay again\t";
