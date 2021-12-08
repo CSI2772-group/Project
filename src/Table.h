@@ -119,8 +119,131 @@ class Table
         return won;
     }
 
+    char printTurnPrompt()
+    {
+        Utils::clearScreen();
+        pprint(std::cout);
+        std::cout << "[e]nd turn\t";
+        std::cout << "[s]ave and quit\t"; // TODO: Implement the saving stuff
+        std::cout << "[t]rade\t";
+        if (!playedTwice)
+            std::cout << "[p]lay again\t";
+        if (!discarded)
+            std::cout << "[d]iscard\t";
+        if (getCurrentPlayer()->getNumChains() < 3)
+        {
+            std::cout << "[b]uy third chain\t";
+        }
+
+        std::string inputStr = Utils::getLine(1);
+        return inputStr[0];
+    }
+
+    void handleEndTurn()
+    {
+        doneTurn = true;
+        std::cout << "Ending turn..." << std::endl;
+    }
+
+    void handlePlantAgain()
+    {
+        if (playedTwice)
+        {
+            std::cout << "You can only play twice per turn!" << std::endl;
+        }
+        else
+        {
+            playedTwice = true;
+            getCurrentPlayer()->plantTop();
+        }
+    }
+
+    void handleDiscard()
+    {
+        if (discarded)
+        {
+            std::cout << "You can only discard once per turn!" << std::endl;
+        }
+        else
+        {
+            discarded = true;
+            discardPile.push_back(getCurrentPlayer()->discardAny());
+            ;
+        }
+    }
+
+    void handleTrade()
+    {
+        if (!tradeArea.cards.empty())
+        {
+            Card *card = tradeArea.chooseCard();
+            getCurrentPlayer()->playCard(card);
+        }
+        else
+        {
+            std::cout << "The trade area is empty!" << std::endl;
+        }
+    }
+
+    void handleDecision(char input)
+    {
+        switch (input)
+        {
+        case 'e':
+            handleEndTurn();
+            break;
+        case 'p':
+            handlePlantAgain();
+            break;
+        case 'd':
+            handleDiscard();
+            break;
+        case 'b':
+            getCurrentPlayer()->buyThirdChain();
+            break;
+        case 't':
+            handleTrade();
+            break;
+        default:
+            std::cout << "Invalid input!" << std::endl;
+            break;
+        }
+    }
+
+    void playNextTurn()
+    {
+        drawToTradeArea(3);
+
+        updateTradeArea();
+
+        Utils::clearScreen();
+        pprint(std::cout);
+
+        getCurrentPlayer()->plantTop();
+
+        while (!doneTurn)
+        {
+            char input = printTurnPrompt();
+            handleDecision(input);
+        }
+
+        // Put two cards from deck into player
+        drawPlayerCards(2);
+
+        // Flip player's turn
+        changeTurn();
+    }
+
+    void playGame()
+    {
+        while (!deck.empty())
+            playNextTurn();
+    }
+
     void changeTurn()
     {
+        doneTurn = false;
+        playedTwice = false;
         p1Turn = !p1Turn;
     }
 
@@ -147,8 +270,6 @@ class Table
                 tradeArea += deck.draw();
         }
     }
-
-    void printHand(bool) const;
 
     friend std::ostream &operator<<(std::ostream &, const Table &);
 
@@ -214,6 +335,12 @@ class Table
         out << "Your Coins: " << currentPlayer->getNumCoins() << std::endl;
         out << std::endl;
     }
+
+    // state variables to run current turn
+    bool discarded = false;
+    bool doneTurn = false;
+    bool playedTwice = false;
+
     bool p1Turn = true;
     Player player1;
     Player player2;
