@@ -94,31 +94,6 @@ class Table
             return makeTable();
     }
 
-    bool win(std::string &winner) const
-    {
-        bool won = false;
-        if (deck.empty())
-        {
-            if (player1.getNumCoins() > player2.getNumCoins())
-            {
-                winner = player1.getName();
-                won = true;
-            }
-            else if (player1.getNumCoins() < player2.getNumCoins())
-            {
-                winner = player2.getName();
-                won = true;
-            }
-            else
-            {
-                winner = "It's a tie! Everyone wins! (or loses if you think about it)";
-                won = true;
-            }
-        }
-
-        return won;
-    }
-
     char printTurnPrompt()
     {
         Utils::clearScreen();
@@ -287,6 +262,8 @@ class Table
 
     void handleGameEnd() const
     {
+        std::cout << std::endl << "No more cards in the deck, Game over!" << std::endl;
+
         // short names
         Player p1 = player1;
         Player p2 = player2;
@@ -296,13 +273,11 @@ class Table
         std::string n2 = player2.getName();
 
         if (c1 > c2)
-            std::cout << n1 << " wins with " << c1 << " coins against" << c2 << "!" << std::endl;
+            std::cout << n1 << " wins with " << c1 << " coins against " << c2 << "!" << std::endl;
         else if (c1 < c2)
-            std::cout << n2 << " wins with " << c2 << " coins against" << c1 << "!" << std::endl;
+            std::cout << n2 << " wins with " << c2 << " coins against " << c1 << "!" << std::endl;
         else
             std::cout << "It's a tie! Everyone wins! (or loses if you think about it)" << std::endl;
-
-        std::cout << "Game over!\n";
     }
 
     void drawPlayerCards(int num)
