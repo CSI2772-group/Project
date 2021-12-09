@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
       
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest]
         
     steps:
     - uses: actions/checkout@v2
@@ -33,7 +33,7 @@ jobs:
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target beans
 
     - name: Zip build
-      run: zip -r ${{github.workspace}}/build.zip ${{github.workspace}}/build
+      run: tar -czf ${{github.workspace}}/build.zip ${{github.workspace}}/build
     
 
     - name: Create release
@@ -42,7 +42,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
+        tag_name: ${{ github.sha }}
         release_name: Release ${{ github.sha }} for ${{ matrix.os }}
         draft: false
         prerelease: false
