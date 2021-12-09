@@ -29,8 +29,30 @@ jobs:
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} 
 
-    - name: Build
+    - name: Build and Zip
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target beans
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target beans_and_zip
    
-      
+    # Upload release assets
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }} for ${{ matrix.os }}
+        draft: false
+        prerelease: false
+        
+    - name: Upload Assets
+      id: upload-release-asset
+      uses: actions/upload-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        # Zip the bin folder
+        asset_path: ${{ github.workspace }}/build/beans.zip
+        asset_name: beans_${{ matrix.os }}_${{ env.BUILD_TYPE }}.zip
+        asset_content_type: application/zip
