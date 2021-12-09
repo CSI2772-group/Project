@@ -12,23 +12,6 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  create_release:
-    name: Create release
-    runs-on: ubuntu-latest
-    # Note this. We are going to use that in further jobs.
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-    steps:
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
   build:
     name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -51,7 +34,19 @@ jobs:
 
     - name: Zip build
       run: zip -r ${{github.workspace}}/build.zip ${{github.workspace}}/build
+    
 
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.sha }} for ${{ matrix.os }}
+        draft: false
+        prerelease: false
+    
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       env:
