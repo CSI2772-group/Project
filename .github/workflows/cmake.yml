@@ -1,10 +1,6 @@
 name: CMake
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
     
 
@@ -42,7 +38,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: 1.0
+        tag_name: v1.0
         release_name: Release for ${{ matrix.os }}
         draft: false
         prerelease: false
