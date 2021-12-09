@@ -2,7 +2,11 @@ name: CMake
 
 on:
   workflow_dispatch:
-    
+    inputs:
+      version:
+        description: 'Rel version'     
+        required: true
+        default: 'v1.1'
 
 env:
   BUILD_TYPE: Release
@@ -38,7 +42,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: v1.0
+        tag_name: ${{ github.event.inputs.version }}
         release_name: Release for ${{ matrix.os }}
         draft: false
         prerelease: false
