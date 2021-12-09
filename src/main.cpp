@@ -17,9 +17,11 @@ const std::string beanAsciiArt = "      ████████\n"
 int main()
 {
     // 🌽 Print corny ascii art 🌽
+    // or beany 🫘
     std::cout << beanAsciiArt;
     std::cout << "Welcome to the Bean Game!\nLiterally Fall Guys™ except its "
                  "like an obscure card game :/\n";
+
 
     Table *table = Table::loadOrMakeTable();
 
