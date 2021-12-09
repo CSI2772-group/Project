@@ -34,8 +34,8 @@
 # IDE specific folders (e.g. Visual Studio Code User settings)
 .vscode
 cmake-*
-
 build
 
-#debug file
+# Other files
+save.bean
 src/main
