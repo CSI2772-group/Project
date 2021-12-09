@@ -33,7 +33,7 @@ jobs:
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target beans
 
     - name: Zip build
-      run: tar -czf ${{github.workspace}}/build.zip ${{github.workspace}}/build
+      run: zip -r ${{github.workspace}}/build.zip ${{github.workspace}}/build
     
 
     - name: Create release
