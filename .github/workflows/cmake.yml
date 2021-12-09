@@ -44,7 +44,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }} for ${{ matrix.os }}
+        release_name: Release-${{ github.sha }}
         draft: false
         prerelease: false
 
@@ -56,5 +56,5 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ${{github.workspace}}/build.zip
-        asset_name: build.zip
+        asset_name: build-${{ matrix.os }}.zip
         asset_content_type: application/zip
