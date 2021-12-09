@@ -30,9 +30,7 @@ class Table
     friend std::ostream &operator<<(std::ostream &os, const Table &table)
     {
         os << (char)table.p1Turn;
-        os << (char)table.discarded;
-        os << (char)table.playedTwice;
-        os << (char)table.doneTurn;
+
 
         os << table.player1;
         os << table.player2;
@@ -46,9 +44,7 @@ class Table
     Table(std::istream &save, const CardFactory *cf)
     {
         save.read((char *)&p1Turn, sizeof(p1Turn));
-        save.read((char *)&discarded, sizeof(discarded));
-        save.read((char *)&playedTwice, sizeof(playedTwice));
-        save.read((char *)&doneTurn, sizeof(doneTurn));
+ 
         // must be the same order as ostream operation
         player1 = Player(save, cf);
         player2 = Player(save, cf);
